@@ -680,7 +680,7 @@
 				try {
 					// CHANGE THIS LINE BEFORE PUBLISHING
 					const proxyURL = `http://localhost:8000/?url=${encodeURIComponent(inputURL)}`;
-					const response = await fetch(proxyURL);
+					const response = await fetch(inputURL);
 
 					if (!response.ok) {
 						throw new Error(`Failed to fetch audio file: ${response.status} ${response.statusText}`);
