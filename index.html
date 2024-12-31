@@ -29,7 +29,7 @@
 				width: 100%;
 				height: 55px;
 				background-color: black;
-				display: block; 
+				display: flex; 
 				justify-content: center;
 				align-items: center;
 				flex-direction: column;
@@ -39,7 +39,7 @@
 				width: 100%;  /* Full width of the parent container */
 				height: 100%; /* Hide the video display */
 				object-fit: cover;
-				display: block; /* Hide by default */
+				/*display: block; /* Hide by default */
 			}
 			video::-webkit-media-controls-panel {
 				display: flex; /* Ensure the toolbar is displayed */
@@ -399,7 +399,7 @@
 
 		<div id="menu-bar" class="menu-bar">
 			<div class="menu-item" onclick="showPlaylists()">
-				<img src="https://via.placeholder.com/24" alt="Library">
+				<img src="img/playlist-icon.png" alt="Library">
 				<div>Playlists</div>
 			</div> 			
 			<!--<div class="menu-item">
@@ -407,11 +407,11 @@
 				<div>Home</div>
 			</div>-->
 			<div class="menu-item" onclick="showSearch()">
-				<img src="https://via.placeholder.com/24" alt="Search">
+				<img src="img/search-icon.png" alt="Search">
 				<div>Search</div>
 			</div>
 			<div class="menu-item" onclick="showAdmin()">
-				<img src="https://via.placeholder.com/24" alt="Library">
+				<img src="img/settings-icon.png" alt="Library">
 				<div>Admin</div>
 			</div>			
 		</div>   
