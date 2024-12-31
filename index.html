@@ -27,7 +27,7 @@
 	
 			.video-container {
 				width: 100%;
-				height: 55px;
+				height: 200px;
 				background-color: black;
 				display: flex; 
 				justify-content: center;
@@ -347,6 +347,11 @@
 			</div>
 		</div>
 	 
+		<!-- Video Container -->
+		<div id="video-container" class="video-container">
+			<video id="videoPlayer" controls></video>
+		</div>
+
 		<!-- Controls Bar -->
 		<div id="playlist-controls-bar" class="controls-bar">
 			<div class="control-item" onclick="showPlaylists()">Back</div>
@@ -390,11 +395,6 @@
 			<div class="admin" id="admin">
 				<div id="consoleOutput"></div>
 			</div>
-		</div>
-
-		<!-- Video Container -->
-		<div id="video-container" class="video-container">
-			<video id="videoPlayer" controls></video>
 		</div>
 
 		<div id="menu-bar" class="menu-bar">
@@ -660,7 +660,7 @@
 					videoPlayer.src = audioURL;
 
 					// add thumbnail
-					/*
+					
 					let thumbnail = undefined;
 					if ('album' in trackItem && 'images' in trackItem.album && trackItem.album.images.length > 0) {
 						thumbnail =  trackItem.album.images[0].url;
@@ -669,7 +669,7 @@
 						thumbnail =  "https://via.placeholder.com/50";
 					}
 					videoPlayer.setAttribute('poster',thumbnail);
-					*/
+					
 
 					videoPlayer.style.display = 'block';
 					videoPlayer.play();
