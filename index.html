@@ -29,7 +29,7 @@
 				width: 100%;
 				height: 55px;
 				background-color: black;
-				/*display: none; /* Hide by default */
+				display: block; 
 				justify-content: center;
 				align-items: center;
 				flex-direction: column;
@@ -39,7 +39,7 @@
 				width: 100%;  /* Full width of the parent container */
 				height: 100%; /* Hide the video display */
 				object-fit: cover;
-				/*display: none; /* Hide by default */
+				display: block; /* Hide by default */
 			}
 			video::-webkit-media-controls-panel {
 				display: flex; /* Ensure the toolbar is displayed */
@@ -433,14 +433,14 @@
 				let deletedCount = await manageMediaDatabaseSize(dbName, storeName, 1024)
 				console.log(`Database management completed. ${deletedCount} records deleted.`);
 
-				// Check memory used. Needs to be after calling getMediaDatabase, where it creates the db if it does not exist
+				// Check memory used. This call nees to be done after calling getMediaDatabase always!
 				try {
 					let storageUsedMB = await getIndexedDBStorageUsed(dbName, storeName);
 					console.log(`Estimated storage used: ${(storageUsedMB / 1024 / 1024).toFixed(2)} MB`);
 				} catch (error) {
 					console.log(`Error reading memory use: ${error.message}`);
 				}
-				
+
 				// Get Music App token
 				const accessToken = await getMusicAppAccessToken();
 				if (accessToken) console.log("Got Token");
@@ -680,7 +680,7 @@
 				try {
 					// CHANGE THIS LINE BEFORE PUBLISHING
 					const proxyURL = `http://localhost:8000/?url=${encodeURIComponent(inputURL)}`;
-					const response = await fetch(inputURL);
+					const response = await fetch(proxyURL);
 
 					if (!response.ok) {
 						throw new Error(`Failed to fetch audio file: ${response.status} ${response.statusText}`);
@@ -781,7 +781,7 @@
 				document.getElementById('track-container').style.display = 'block';
 			    document.getElementById('playlist-controls-bar').style.display = 'flex';	
 				// Show the VideoPlayer again
-				document.getElementById('videoPlayer').style.display = 'block';
+				// document.getElementById('videoPlayer').style.display = 'block';
 			}
 
 			function showSearch() {
