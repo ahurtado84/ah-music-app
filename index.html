@@ -427,20 +427,20 @@
 			main();
  
 			async function main() {
-				// Check memory used
-				try {
-					let storageUsedMB = await getIndexedDBStorageUsed(dbName, storeName);
-					console.log(`Estimated storage used: ${(storageUsedMB / 1024 / 1024).toFixed(2)} MB`);
-				} catch (error) {
-					console.log(`Error reading memory use: ${error.message}`);
-				}
-
 				// Clean up Memory
 				console.log('Deleting old records if size is >1024 MB');
 				const db = await getMediaDatabase(dbName, storeName);
 				let deletedCount = await manageMediaDatabaseSize(dbName, storeName, 1024)
 				console.log(`Database management completed. ${deletedCount} records deleted.`);
 
+				// Check memory used. Needs to be after calling getMediaDatabase, where it creates the db if it does not exist
+				try {
+					let storageUsedMB = await getIndexedDBStorageUsed(dbName, storeName);
+					console.log(`Estimated storage used: ${(storageUsedMB / 1024 / 1024).toFixed(2)} MB`);
+				} catch (error) {
+					console.log(`Error reading memory use: ${error.message}`);
+				}
+				
 				// Get Music App token
 				const accessToken = await getMusicAppAccessToken();
 				if (accessToken) console.log("Got Token");
