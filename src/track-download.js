@@ -1,3 +1,8 @@
+/*
+Adele A million years ago "2qBmtZnPSQouvADmqaHKxk" doesn't get a response
+*/
+
+
 const xrapidapikey = getAPIKey();
 if (!xrapidapikey) {
   alert('Add a xrapidapikey= parameter to the URL with the right key');
@@ -60,9 +65,14 @@ function selectTrackDownloadURL(trackData){
             console.log("Returned video data has no download field");
             return null;
         }    
-        if (!(trackData.youtube.download.hasOwnProperty('error'))) {
+        if ((trackData.youtube.download.hasOwnProperty('error'))) {
           console.log(`Returned video has an error: ${trackData.youtube.download.error}`);
-          return null;
+          if ((trackData.hasOwnProperty('preview_url')) && (trackData.preview_url !== "")) {
+              console.log("Returning preview instead")
+              return trackData.preview_url;
+          } else {
+              return null;
+          } 
         }          
         if (trackData.youtube.download.length == 0 ) {
             console.log("Returned video data has no download items");
