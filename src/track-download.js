@@ -60,6 +60,10 @@ function selectTrackDownloadURL(trackData){
             console.log("Returned video data has no download field");
             return null;
         }    
+        if (!(trackData.youtube.download.hasOwnProperty('error'))) {
+          console.log(`Returned video has an error: ${trackData.youtube.download.error}`);
+          return null;
+        }          
         if (trackData.youtube.download.length == 0 ) {
             console.log("Returned video data has no download items");
             return null;
