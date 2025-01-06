@@ -9,7 +9,7 @@
 // Done, start caching stuff
 
 const musicAppAPIMode = "prod"  // dry-run or prod
-const musicAppScope = "user-read-private playlist-read-private user-read-email";
+const musicAppScope = "playlist-modify-private playlist-modify-public user-read-private playlist-read-private user-read-email";
 const accountsBaseURL = "https://accounts.spot" + "ify.com"
 const apiBaseURL = "https://api.spot" + "ify.com"
 
@@ -230,6 +230,90 @@ async function searchMusicApp(token, searchCriteria) {
 
 }
 
+async function addPlaylistItems(token, playlistId, trackList) {
+    // Validate playlistId
+    if (typeof playlistId !== 'string' || !playlistId.trim()) {
+        throw new Error("Invalid playlistId: it must be a non-empty string.");
+    }
+
+    // Validate trackList
+    if (!Array.isArray(trackList)) {
+        throw new Error("Invalid trackList: it must be an array.");
+    }
+    if (!trackList.every(item => typeof item === 'string' && item.trim())) {
+        throw new Error("Invalid trackList: all elements must be non-empty strings.");
+    }
+    
+    var endpoint = `${apiBaseURL}/v1/playlists/${playlistId}/tracks`;
+    var items = [];
+    const payload = {
+        uris: trackList.map(id => (`spotify:track:${id}`))
+    };
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error adding track from playlist: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return true; 
+    } catch (error) {
+        console.error('Error adding track from playlist:', error);
+        return false;
+    }
+}
+
+async function removePlaylistItems(token, playlistId, trackList) {
+    // Validate playlistId
+    if (typeof playlistId !== 'string' || !playlistId.trim()) {
+        throw new Error("Invalid playlistId: it must be a non-empty string.");
+    }
+
+    // Validate trackList
+    if (!Array.isArray(trackList)) {
+        throw new Error("Invalid trackList: it must be an array.");
+    }
+    if (!trackList.every(item => typeof item === 'string' && item.trim())) {
+        throw new Error("Invalid trackList: all elements must be non-empty strings.");
+    }
+    
+    var endpoint = `${apiBaseURL}/v1/playlists/${playlistId}/tracks`;
+    var items = [];
+    const payload = {
+        tracks: trackList.map(id => ({ uri: `spotify:track:${id}` }))
+    };
+    try {
+        const response = await fetch(endpoint, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error removing track from playlist: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return true; 
+    } catch (error) {
+        console.error('Error removing track from playlist:', error);
+        return false;
+    }
+}
+
+// Code refresh functions
+
 async function redirectToAuthCodeFlow(clientId) {
     // const verifier = generateCodeVerifier(128);
     // const challenge = await generateCodeChallenge(verifier);
@@ -262,6 +346,8 @@ async function generateCodeChallenge(codeVerifier) {
         .replace(/\//g, '_')
         .replace(/=+$/, '');
 }
+
+// Helper generic functions
 
 function generateRandomString(length) {
     let text = '';

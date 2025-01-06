@@ -156,7 +156,7 @@ async function getIndexedDBStorageUsed(dbName, storeName) {
                         return sum + (record.audioBlob?.size || 0);
                     }, 0);
 
-                    // console.log(`Current database size: ${totalSize} bytes`);
+                    console.log(`Current database size: ${(totalSize / 1024 / 1024).toFixed(2)} MB`);
                     resolve(totalSize);
                 }
             };
@@ -199,8 +199,6 @@ async function manageMediaDatabaseSize(dbName, storeName, maxSizeMB) {
                         return sum + (record.audioBlob?.size || 0);
                     }, 0);
 
-                    console.log(`Current database size: ${totalSize} bytes`);
-
                     // Sort records by lastAccessed (oldest first)
                     allRecords.sort((a, b) => new Date(a.lastAccessed) - new Date(b.lastAccessed));
 
@@ -221,8 +219,8 @@ async function manageMediaDatabaseSize(dbName, storeName, maxSizeMB) {
                         totalSize -= oldestRecord.audioBlob?.size || 0;
                         deletedCount++;
                     }
-
-                    console.log(`Deleted ${deletedCount} records. Database size now: ${totalSize} bytes`);
+                    console.log(`Database management completed with max: ${maxSizeMB} MB. ${deletedCount} records deleted.`);
+                    // console.log(`Deleted ${deletedCount} records. Database size now: ${totalSize} bytes`);
                     resolve(deletedCount);
                 }
             };

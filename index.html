@@ -1,312 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head> 
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Music App</title>
-		<style>
-			body {
-				font-family: Arial, sans-serif;
-				margin: 0;
-				padding: 0;
-				background-color: #121212;
-				color: white;
-				display: flex;
-				flex-direction: column;
-				height: 100vh;
-				overflow: hidden;
-			}
-	
-			.header {
-				padding: 10px;
-				background-color: #1DB954;
-				text-align: center;
-				font-size: 20px;
-				font-weight: bold;
-			}
-	
-			.video-container {
-				width: 100%;
-				height: 200px;
-				background-color: black;
-				display: flex; 
-				justify-content: center;
-				align-items: center;
-				flex-direction: column;
-			}
-	
-			video {
-				width: 100%;  /* Full width of the parent container */
-				height: 100%; /* Hide the video display */
-				object-fit: cover;
-				/*display: block; /* Hide by default */
-			}
-			video::-webkit-media-controls-panel {
-				display: flex; /* Ensure the toolbar is displayed */
-			}
-	
-			.controls-bar {
-				display: flex;
-				justify-content: space-around;
-				background-color: #282828;
-				padding: 10px 0;
-				width: 100%;
-			}
-	
-			.controls-bar .control-item {
-				text-align: center;
-				color: white;
-				font-size: 14px;
-				padding: 10px 20px;
-				background-color: #1DB954;
-				border-radius: 20px;
-				cursor: pointer;
-			}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-			.play-button {
-				background-color: #1db954;
-				border: none;
-				color: white;
-				border-radius: 50%;
-				width: 30px;
-				height: 30px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				cursor: pointer;
-				font-size: 18px;
-				transition: background-color 0.3s ease;
-			}
+        .header {
+            padding: 10px;
+            background-color: #1DB954;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
 
-			.play-button:hover {
-				background-color: #1ed760;
-			}
+        .header img {
+            height: 40px;
+        }
 
-			.playlist-container, .track-container, .search-container, .admin-container {
-				flex: 1;
-				overflow-y: auto;
-				padding: 10px;
-				padding-bottom: 60px; /* Ensure space for the bottom toolbar */
-			}
-	
-			.playlist, .track-list {
-				display: flex;
-				flex-direction: column;
-				gap: 15px;
-			}
-	
-			.playlist-item, .track-item{
-				display: flex;
-				align-items: center;
-				background-color: #282828;
-				padding: 10px;
-				border-radius: 10px;
-				cursor: pointer;
-			}
-	
-			.playlist-item img, .track-item img{
-				width: 50px;
-				height: 50px;
-				border-radius: 5px;
-				margin-right: 15px;
-			}
-	
-			.playlist-item .details, .track-item .details {
-				flex: 1;
-			}
-	
-			.playlist-item .details .title, .track-item .details .title {
-				font-size: 16px;
-				font-weight: bold;
-			}
-	
-			.playlist-item .details .description, .track-item .details .description {
-				font-size: 14px;
-				color: #b3b3b3;
-			}
+        .videoplayer-container {
+            background-color: black;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-			/* Menu button (three dots) */
-			.menu-button {
-				background: none;
-				border: none;
-				cursor: pointer;
-				font-size: 18px;
-				color: #666;
-			}
+        video {
+            width: 100%;  /* Full width of the parent container */
+			height: 100%; /* Hide the video display */
+			object-fit: cover;
+		    display: block; /* Hide by default */
+        }
 
-			/* Dropdown menu styling */
-			.dropdown-menu {
-				position: absolute;
-				right: 10px;
-				top: 100%;
-				display: none;
-				background-color: white;
-				box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-				border-radius: 5px;
-				overflow: hidden;
-				z-index: 100;
-			}
+        video::-webkit-media-controls-panel {
+			display: flex; /* Ensure the toolbar is displayed */
+		}
 
-			/* Show the dropdown menu when the parent has the 'show' class */
-			.track-item.show .dropdown-menu {
-				display: block;
-			}
+        .controlbar-container {
+            display: flex;
+            width: 100%;
+        }
 
-			/* Dropdown menu items */
-			.dropdown-menu button {
-				background: none;
-				border: none;
-				padding: 10px;
-				text-align: left;
-				width: 100%;
-				cursor: pointer;
-				color: #333;
-				font-size: 14px;
-				transition: background-color 0.2s ease;
-			}
+        .bottom-toolbar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+            background-color: #181818;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            z-index: 10;
+        }
 
-			.dropdown-menu button:hover {
-				background-color: #f0f0f0;
-			}
+        .bottom-toolbar button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
 
+        .bottom-toolbar button.active {
+            color: #1DB954;
+        }
 
-			.menu-bar {
-				display: flex;
-				justify-content: space-around;
-				background-color: #282828;
-				padding: 10px 0;
-				position: sticky;
-				bottom: 0;
-				width: 100%;
-			}
-	
-			.menu-bar .menu-item {
-				text-align: center;
-				color: #b3b3b3;
-				font-size: 12px;
-			}
-	
-			.menu-bar .menu-item img {
-				width: 24px;
-				height: 24px;
-				margin-bottom: 5px;
-			}
+        /* Controlling which controlbar and list to display */
+        #playlists-controlbar, #search-controlbar, #playing-controlbar, #playlists, #search-results, #tracks, #admin-container {
+            display: none;
+        }
 
-			.menu-item:hover {
-				cursor: pointer;
-			}
+        #search-controlbar.active, #playing-controlbar.active, #playlists.active, #search-results.active, #tracks.active, #admin-container.active {  /* playlists-controlbar does't have an active mode, nothing to show there */
+            display: block;
+        }
 
-			#consoleOutput {
-				height: 300px;
-				border: 1px solid #000;
-				background-color: #f0f0f0;
-				overflow-y: scroll;
-				padding: 10px;
-				padding-right: 10px;
-				font-family: monospace;
-				color: black;
-			}
+        .list, #admin-container {
+            flex: 1;
+            overflow-y: auto;
+            margin: 0 auto;
+            width: 95%;  /* I need this to be less than 100% to avoid getting a second toolbar */
+            padding: 10px;
+            box-sizing: border-box; /* Ensures padding is included in height calculation */
+        }
 
-			/* Hide the track container by default */
-			.track-container {
-				display: none;
-			}
+        .controls-bar {
+            display: flex;
+            justify-content: space-around;
+            background-color: #282828;
+            padding: 10px 0;
+            width: 100%;
+        }
 
-			/* Hide the search container by default */
-			.search-container {
-				display: none;
-				overflow: hidden; /* Prevent scrolling */
-				scrollbar-width: none; /* Firefox: Hide scrollbar */
-				-ms-overflow-style: none; /* IE and Edge: Hide scrollbar */
-			}
-			.search-container::-webkit-scrollbar {
-				display: none; /* Chrome, Safari, and Edge: Hide scrollbar */
-			}
+        /* Play all, Random, back buttons */
+        .control-button {
+            text-align: center;
+            color: white;
+            font-size: 14px;
+            padding: 10px 20px;
+            background-color: #181818;
+            border-radius: 20px;
+            cursor: pointer;
+        }
 
-			/* Hide the admin container by default */
-			.admin-container {
-				display: none;
-			}
-			
-			/* Hide the controls-bar by default */
-			.controls-bar {
-				display: none;
-			}
-	
-			/* Mobile-specific styling */
-			@media (max-width: 768px) {
-				.playlist-item img, .track-item img {
-					width: 40px;
-					height: 40px;
-				}
-	
-				.playlist-item .details .title, .track-item .details .title {
-					font-size: 14px;
-				}
-	
-				.playlist-item .details .description, .track-item .details .description {
-					font-size: 12px;
-				}
-			}
+        .control-button.active {
+            background-color: #1DB954;
+        }
 
-			/* Search Container Stuff */
-			/* Generic container object to put stuff inside */
-			.search-box {
-				position: fixed; /* Fix the search container to the top */
-				width: 100%;          /* Let it adapt to the page size */
-				z-index: 1000; /* Ensures it's above other elements */
-				padding: 10px;
-				box-sizing: border-box;
-			}
+        .playlist-item, .track-item, .search-item {
+            display: flex;
+            align-items: center;
+            background-color: #282828;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
 
-			/* Style for the search input and search icon container */
-			.search-input-container {
-				position: relative;
-				width: 95%;
-			}
+        .playlist-item img, .track-item img, .search-item img {
+            height: 40px;
+            width: 40px;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
 
-			.search-input {
-				width: 100%;
-				padding: 10px;
-				padding-right: 40px; /* Add space for the search icon */
-				border-radius: 50px;
-				border: none;
-				outline: none;
-				background-color: #2a2a2a;
-				color: #fff;
-				font-size: 16px;
-				box-sizing: border-box; /* Ensure padding is included in width calculation */
-			}
+        .playlist-item .details, .track-item .details {
+            flex: 1;
+        }
 
-			.search-input::placeholder {
-				color: #b3b3b3;
-			}
+        .playlist-item .details .title, .track-item .details .title {
+            font-size: 14px;
+            font-weight: bold;
+        }
 
-			.search-icon {
-				position: absolute;
-				top: 50%;
-				right: 15px;
-				transform: translateY(-50%);
-				width: 20px;
-				height: 20px;
-				color: #b3b3b3;
-				pointer-events: none; /* Prevents the icon from interfering with clicking on the input */
-			}
+        .playlist-item .details .description, .track-item .details .description {
+            font-size: 12px;
+            color: #b3b3b3;
+        }
 
-			/* Add margin to the top of the track list so it doesn't overlap with the fixed search box */
-			#search-track-list {
-				margin-top: 60px; /* Adjust according to the height of the search box */
-				max-height: calc(100vh - 60px); /* Max height based on viewport minus the search box */
-				overflow-y: auto; /* Allows scrolling */
-				padding: 0 10px;
-			}
+        
+        .playlist-item:hover, .track-item:hover, .search-item:hover {
+            /* background-color: #1DB954; */
+            cursor: pointer;
+        }
+        
 
-			.search-input-container:hover .search-input {
+        .playlist-item.active, .track-item.active, .search-item.active {
+            background-color: #1DB954;
+        }
+
+        /* Search stuff */
+        .search-box {  /* Generic container object to put stuff inside */
+            display: flex;
+            justify-content: space-around;
+            background-color: #121212;
+            padding: 10px 0;
+            width: 100%;
+        }
+        
+        .search-input-container {  /* Style for the search input and search icon container */
+            position: relative;
+            padding-left: 10px;
+            padding-right: 10px;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            padding-right: 40px; /* Add space for the search icon */
+            border-radius: 50px;
+            border: none;
+            outline: none;
+            background-color: #2a2a2a;
+            color: #fff;
+            font-size: 16px;
+            box-sizing: border-box; /* Ensure padding is included in width calculation */
+        }
+
+        .search-input::placeholder {
+            color: #b3b3b3;
+        }
+
+        .search-icon {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: #b3b3b3;
+            pointer-events: none; /* Prevents the icon from interfering with clicking on the input */
+        }
+
+        .search-input-container:hover .search-input {
 				background-color: #333;
-			}
+		}
 
-			/* Loading overlay styles */
-			#loadingOverlay {
+        .menu-icon {
+            margin-left: auto;
+            cursor: pointer;
+        }
+
+        .menu {
+            display: none;
+            position: fixed;
+            background: #282828;
+            border-radius: 8px;
+            padding: 10px;
+            z-index: 1000;
+        }
+
+        .menu-item {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background-color: #1DB954;
+        }
+
+        /* Console */
+        #consoleOutput {
+            height: 300px;
+            border: 1px solid #000;
+            background-color: #cfcece;
+            overflow-y: scroll;
+            padding: 10px;
+            padding-right: 10px;
+            font-family: monospace;
+            color: black;
+        }
+
+        /* Menu button (three lines) and Dropdown menu styling */
+        .menu-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            background: #282828;
+            border-radius: 8px;
+            padding: 10px;
+            z-index: 1000;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+            min-width: 150px;
+        }
+
+        /* Loading overlay styles */
+        #loadingOverlay {
 			position: fixed;
 			top: 0;
 			left: 0;
@@ -317,536 +274,999 @@
 			justify-content: center;
 			align-items: center;
 			z-index: 1000;
-			}
+		}
 
-			#loadingOverlay .spinner {
+		#loadingOverlay .spinner {
 			border: 8px solid rgba(255, 255, 255, 0.2);
 			border-top: 8px solid white;
 			border-radius: 50%;
 			width: 60px;
 			height: 60px;
 			animation: spin 1s linear infinite;
-			}
+		}
 
-			@keyframes spin {
+		@keyframes spin {
 			from {
 				transform: rotate(0deg);
 			}
 			to {
 				transform: rotate(360deg);
 			}
-			}
-		</style> 
-	</head>  
-    <body>  
-		<div class="header">
-			<img src="img/logo_black.png" alt="Logo" style="vertical-align: middle; margin-right: 10px; width: 40px; height: 40px;">
-			<span style="vertical-align: middle;">Spot</span><span style="vertical-align: middle;">ify</span>
-			<div style="vertical-align: middle; float: right; display: flex; align-items: center;">
-				<span style="margin-right: 10px; font-size: 14px;" id="user-name"></span>
-				<img src="https://via.placeholder.com/50" style="width: 50px; height: 50px;" id="user-picture">
-			</div>
-		</div>
-	 
-		<!-- Video Container -->
-		<div id="video-container" class="video-container">
-			<video id="videoPlayer" controls></video>
-		</div>
+		}  
 
-		<!-- Controls Bar -->
-		<div id="playlist-controls-bar" class="controls-bar">
-			<div class="control-item" onclick="showPlaylists()">Back</div>
-			<div class="control-item" onclick="playAll()">Play All</div>
-			<div class="control-item" onclick="playRandom()">Random</div>
-		</div>
-	
-		<!-- Playlist Container -->
-		<div id="playlist-container" class="playlist-container">
-			<div class="playlist" id="playlist">
-			</div>
-		</div>
-	
-		<!-- Track Container -->
-		<div id="track-container" class="track-container">
-			<!--<div class="header" id="backBtn" onclick="showPlaylists()">Back</div>-->
-			<div class="track-list" id="track-list">
-				<!-- Tracks will be inserted here dynamically -->
-			</div> 
-		</div> 
+        /* Playlist options pop up */
+        /* Fullscreen Overlay */
+        #popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(18, 18, 18, 0.9); /* Spotify-like dark overlay */
+            z-index: 1000;
+            display: flex; /* Enable Flexbox for centering */
+            justify-content: center; /* Center horizontally */
+            align-items: center;    /* Center vertically */
+        }
 
-		<!-- Search Container -->
-		<div id="search-container" class="search-container">
+        /* Popup Content */
+        .popup-content {
+            background: #282828; /* Spotify's dark gray */
+            border-radius: 12px;
+            padding: 20px 30px;
+            width: 400px;
+            max-width: 90%;
+            max-height: 80%;  /* Ensure the popup content is constrained within the screen height */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+            color: #fff; /* White text */
+            font-family: 'Arial', sans-serif;
+            position: relative; /* Ensure close icon is positioned relative to the popup */
+            overflow: hidden; /* Prevent content from overflowing outside */
+        }
+
+        /* Close Icon */
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #b3b3b3; /* Light gray for inactive state */
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .popup-close:hover {
+            color: #fff; /* White on hover */
+        }
+
+        /* Popup Title */
+        .popup-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #1db954; /* Spotify green */
+        }
+
+        /* Popup Options List */
+        .popup-options {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 300px; /* Set a max height for the scrollable area */
+            overflow-y: auto;  /* Enable vertical scrolling */
+            margin-bottom: 15px; /* Optional: Space at the bottom of the list */
+        }
+
+        .popup-options li {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #333; /* Slightly lighter than the popup background */
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .popup-options li:hover {
+            background: #1db954; /* Spotify green on hover */
+            color: #fff;
+            /* transform: scale(1.05); */ /* Slight zoom effect */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <img src="img/logo_black.png" alt="Logo" style="vertical-align: middle; margin-right: 10px; width: 40px; height: 40px;">
+        <span style="vertical-align: middle;">Spot</span><span style="vertical-align: middle;">ify</span>
+        <div style="vertical-align: middle; float: right; display: flex; align-items: center;">
+            <span style="margin-right: 10px; font-size: 14px;" id="user-name"></span>
+            <img src="https://via.placeholder.com/50" style="width: 50px; height: 50px;" id="user-picture">
+        </div>
+    </div>
+
+    <!-- Video Player -->
+    <div class="videoplayer-container">
+        <video controls id="video-player">
+            <source src="" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <!-- Control Bar Tabs -->
+    <div id="controlbar-container">
+        <div id="playlists-controlbar" class="controlbar-tab active">
+        </div>
+        <div id="search-controlbar" class="controlbar-tab">
 			<div class="search-box">
 				<div class="search-input-container">
 					<input type="text" class="search-input" placeholder="Search..." id="search-text-input">
-					<!--<span id="search-icon" class="search-icon">🔍</span>-->
 					<svg id="search-icon" class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<circle cx="11" cy="11" r="8"></circle>
 						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
 					</svg>
 				</div>
-			</div>
-			<div class="track-list" id="search-track-list">
-				<!-- Tracks will be inserted here dynamically -->
-			</div>	
-		</div>
+			</div>            
+        </div>
+        <div id="playing-controlbar" class="controlbar-tab">
+            <div id="playlist-controls-bar" class="controls-bar">
+                <div class="control-button" onclick="toggleTab('playlists')">Back</div>
+                <div id="play-all-btn" class="control-button" onclick="playAllCallback()">Play All</div>
+                <div id="random-play-btn" class="control-button" onclick="ramdomPlayCallback()">Random</div>
+            </div>
+        </div>
+    </div>
 
-		<!-- Admin Container -->
-		<div id="admin-container" class="admin-container">
-			<div class="admin" id="admin">
-				<div id="consoleOutput"></div>
-			</div>
-		</div>
+    <!-- Items go here -->
+    <div id="playlists" class="list active">
+    </div>
+    <div id="search-results" class="list">
+    </div>        
+    <div id="tracks" class="list">
+    </div>       
+    <!-- Admin Container -->
+    <div id="admin-container">
+        <div id="consoleOutput"></div>
+    </div>
 
-		<div id="menu-bar" class="menu-bar">
-			<div class="menu-item" onclick="showPlaylists()">
-				<img src="img/playlist-icon.png" alt="Library">
-				<div>Playlists</div>
-			</div> 			
-			<!--<div class="menu-item">
-				<img src="https://via.placeholder.com/24" alt="Home">
-				<div>Home</div>
-			</div>-->
-			<div class="menu-item" onclick="showSearch()">
-				<img src="img/search-icon.png" alt="Search">
-				<div>Search</div>
-			</div>
-			<div class="menu-item" onclick="showAdmin()">
-				<img src="img/settings-icon.png" alt="Library">
-				<div>Admin</div>
-			</div>			
-		</div>   
-   
-		<!--Order matters, loading first music app as app-script depends on them -->
-		<script src="src/track-download.js"></script>
-		<script src="src/music-app-api.js"></script>
-		<script src="src/media-cache-database.js"></script>
-		<script>
-			const dbName = "mediaDB";
-		    const storeName = "mediaStore";
-			overwriteConsole();
-			main();
- 
-			async function main() {
-				// Clean up Memory
-				console.log('Deleting old records if size is >1024 MB');
-				const db = await getMediaDatabase(dbName, storeName);
-				let deletedCount = await manageMediaDatabaseSize(dbName, storeName, 1024)
-				console.log(`Database management completed. ${deletedCount} records deleted.`);
+    <!-- Bottom Toolbar -->
+    <div class="bottom-toolbar">
+        <button id="playlists-btn" class="active" onclick="toggleTab('playlists')">Playlists</button>
+        <button id="search-btn" onclick="toggleTab('search')">Search</button>
+        <button id="playing-btn" onclick="toggleTab('playing')">Playing</button>
+        <button id="admin-btn" onclick="toggleTab('admin')">Admin</button>
+    </div>
 
-				// Check memory used. This call nees to be done after calling getMediaDatabase always!
-				try {
-					let storageUsedMB = await getIndexedDBStorageUsed(dbName, storeName);
-					console.log(`Estimated storage used: ${(storageUsedMB / 1024 / 1024).toFixed(2)} MB`);
-				} catch (error) {
-					console.log(`Error reading memory use: ${error.message}`);
-				}
+    <script>
+        // First code to run, to store all the URL parameters
+        // Get all URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
 
-				// Get Music App token
-				const accessToken = await getMusicAppAccessToken();
-				if (accessToken) console.log("Got Token");
+        // Iterate over each parameter and store in localStorage
+        urlParams.forEach((value, key) => {
+            localStorage.setItem(key, value);
+            console.log(`Read URL parameter ${key}`);
+        });
+    </script>
+    <script src="src/track-download.js"></script>
+    <script src="src/music-app-api.js"></script>
+    <script src="src/media-cache-database.js"></script>
+    <script>
+        // --------------------- App variables ---------------------
+        const dbName = "mediaDB";
+        const storeName = "mediaStore";
+        const maxDBSizeMB = 1024;
+        
+        // --------------------- Store HTML objects in variables ---------------------
+        const videoPlayer = document.getElementById('video-player');
+       
+        const playListControls= document.getElementById('playlists-controlbar')
+        const searchControls = document.getElementById('search-controlbar');
+        const playingControls = document.getElementById('playing-controlbar');       
 
-				// Add the event listener for the search
-				document.getElementById("search-icon").addEventListener("click", populateSearchResults(accessToken));
-				document.getElementById("search-text-input").addEventListener("keydown", function(event) {
-					// Check if the key pressed is 'Enter'
-					if (event.key === 'Enter') {
-						// Call a function or perform an action
-						populateSearchResults(accessToken);
-					}
-				});
+        const playListsDiv= document.getElementById('playlists')
+        const searchResultsDiv = document.getElementById('search-results');
+        const tracksDiv = document.getElementById('tracks');
+        const adminDiv = document.getElementById('admin-container');
 
-				const profile = await fetchMusicAppProfile(accessToken);
-				populateUI(profile);
+        const playlistsBtn = document.getElementById('playlists-btn');
+        const searchBtn = document.getElementById('search-btn');
+        const playingBtn = document.getElementById('playing-btn');
+        const adminBtn = document.getElementById('admin-btn');
 
-				const playlists_obj = await fetchMusicAppPlaylists(accessToken, profile.id);
-				populatePlaylists(accessToken, playlists_obj);
-			}
+        const consoleOutput = document.getElementById('consoleOutput');
 
-			// Console stuff
-			function overwriteConsole() {
-				// Get a reference to the div where console output will be shown
-				const consoleOutput = document.getElementById('consoleOutput');
+        const playAllButton = document.getElementById('play-all-btn');
+        const randomPlayButton = document.getElementById('random-play-btn');
 
-				// Override the console.log function
-				(function() {
-					const originalConsoleLog = console.log;
-					console.log = function(...args) {
-						// Call the original console.log function
-						originalConsoleLog.apply(console, args);
+        // --------------------- Dealing with Music App Data ---------------------
+        let accessToken = null;
+        let playlists_data = null;
+        let currentowner_playlists = null;
+        let musicapp_profile = null;
+       
+        async function main() {
+             // Clean up Memory
+             await cleanUpMemory();
 
-						// Convert the arguments to a string and add them to the div
-						const message = args.join(' ') + '<br>';
-						consoleOutput.innerHTML += message;
+             // Connection with Music app
+             await connect();
 
-						// Scroll to the bottom of the div
-						consoleOutput.scrollTop = consoleOutput.scrollHeight;
-					};
-				})();
-			}
+            // Now we should have the token
+            // Add the event listener for the search
+            document.getElementById("search-icon").addEventListener("click", populateSearchResults(accessToken));
+            document.getElementById("search-text-input").addEventListener("keydown", function(event) {
+                // Check if the key pressed is 'Enter'
+                if (event.key === 'Enter') {
+                    // Call a function or perform an action
+                    populateSearchResults(accessToken);
+                }
+            });  
+            
+            // Load Profile
+            musicapp_profile = await fetchMusicAppProfile(accessToken);
+            document.getElementById("user-name").innerText = musicapp_profile.display_name;
+            if (musicapp_profile.images.length > 0) {
+                document.getElementById("user-picture").src = musicapp_profile.images[0].url;
+            }
 
-			function populatePlaylists(accessToken, playlists_obj){
-				const playlistContainer = document.getElementById('playlist');
-				playlistContainer.innerHTML = '';
-				playlists_obj.forEach(playlist_obj => {
-					const playlistItem = document.createElement('div');
-					playlistItem.id = playlist_obj.id;
-					playlistItem.className = 'playlist-item';
-					playlistItem.onclick = () => populateTracks(accessToken, playlist_obj.id);
+            // Load Playlists
+            playlists_data = await fetchMusicAppPlaylists(accessToken, musicapp_profile.id);
+            playListsDiv.innerHTML = '';
+            playlists_data.forEach(playlist_obj => {
+                createPlaylistItem(accessToken, playListsDiv, playlist_obj)
+            });
 
-					const img = document.createElement('img');
-					if ('images' in playlist_obj && playlist_obj.images.length > 0) {
-						img.src = playlist_obj.images[playlist_obj.images.length-1].url;
-					}
-					else {
-						img.src = "https://via.placeholder.com/50";
-					}
-					playlistItem.appendChild(img);
+            currentowner_playlists = playlists_data
+                .filter(playlist => playlist.owner.id === musicapp_profile.id)
+        } 
 
-					const details = document.createElement('div');
-					details.className = 'details';
-					const title = document.createElement('div');
-					title.className = 'title';	
-					title.textContent = playlist_obj.name;				
-					const description = document.createElement('div');
-					description.className = 'description';	
-					description.textContent = playlist_obj.description;				
-					details.appendChild(title);
-					details.appendChild(description);
-					playlistItem.appendChild(details);
+        async function cleanUpMemory() {
+            // Clean up Memory
+            // console.log(`Deleting old records if size is >${maxDBSizeMB} MB`);
+            const db = await getMediaDatabase(dbName, storeName);
+            let deletedCount = await manageMediaDatabaseSize(dbName, storeName, maxDBSizeMB);
+            // Check memory used. This call nees to be done after calling getMediaDatabase always!
+            try {
+                let storageUsedMB = await getIndexedDBStorageUsed(dbName, storeName);
+            } catch (error) {
+                console.log(`Error reading memory use: ${error.message}`);
+            }        
+        }
 
-					playlistContainer.appendChild(playlistItem);
-				});
-			}
+        async function connect() {
+            const clientId = localStorage.getItem("clientId");
+            const clientSecret = localStorage.getItem("clientSecret");
 
-			async function populateTracks(accessToken, playlistId){
+            if (!clientId || !clientSecret) {
+                alert('Add a clientId= and clientSecret= to the URL');
+                // Finalize execution
+                throw new Error("No clientId or clientSecret, stopping execution");  // Finalize execution
+            }
+
+            // Get Music App token
+            accessToken = await getMusicAppAccessToken();
+            if (accessToken) {
+                console.log("Got Music App Token");
+            } else {
+                throw new Error("No token, stopping execution");  // Finalize execution
+            }   
+        }
+
+        async function populateSearchResults(accessToken){
+            const query = document.getElementById('search-text-input').value;
+            // Get the tracks
+            let tracks_array = undefined;
+            showLoadingScreen();
+            try {
+
+                tracks_array = await searchMusicApp(accessToken, query);
+            }
+            catch (error) {
+                console.log(`Error searching for ${query}: ${error.message}`);
+            }
+            hideLoadingScreen();
+          
+            if (typeof tracks_array === "undefined" || !(tracks_array)){
+                console.error(`Error searching for ${query}, this is unexpected, can not continue.`);
+                return;
+            }
+            // Add tracks based on the playlist selected
+            const trackListContainer = document.getElementById('search-track-list');
+            searchResultsDiv.innerHTML = ''; // Clear previous tracks
+            searchResultsDiv.scrollTop = 0;  // Scroll to top
+            tracks_array.forEach((track_data, index) => {
+                createTrackItem(track_data, searchResultsDiv);
+                });
+        }
+
+        function createPlaylistItem(accessToken, parentObject, playlistObj) {
+            const playlistItem = document.createElement('div');
+            playlistItem.id = playlistObj.id;
+            playlistItem.className = 'playlist-item';
+            playlistItem.onclick = () => populateTracks(accessToken, playlistObj.id);
+
+            const img = document.createElement('img');
+            if ('images' in playlistObj && playlistObj.images !== null && Array.isArray(playlistObj.images) && playlistObj.images.length > 0) {
+                img.src = playlistObj.images[playlistObj.images.length-1].url;
+            }
+            else {
+                img.src = "https://via.placeholder.com/50";
+            }
+            playlistItem.appendChild(img);
+
+            const detailsDiv = document.createElement('div');
+            detailsDiv.className = 'details';
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'title';	
+            titleDiv.textContent = playlistObj.name;				
+            const descriptionDiv = document.createElement('div');
+            descriptionDiv.className = 'description';	
+            descriptionDiv.textContent = playlistObj.description;				
+            detailsDiv.appendChild(titleDiv);
+            detailsDiv.appendChild(descriptionDiv);
+            playlistItem.appendChild(detailsDiv);
+
+            parentObject.appendChild(playlistItem);
+        }
+
+        async function populateTracks(accessToken, playlistId){
 			// Get the tracks
-			const tracks_array = await fetchMusicAppPlaylistTracks(accessToken, playlistId);
-			// print(tracks_array);
+            let tracks_array = undefined;
+            showLoadingScreen();
+            try {
+                tracks_array = await fetchMusicAppPlaylistTracks(accessToken, playlistId);
+            }
+            catch (error) {
+                console.log(`Error populating tracks for Playlist ${playlistId}: ${error.message}`);
+            }
+            hideLoadingScreen();
+
+            if (typeof tracks_array === "undefined") {
+                console.error(`Can not get track data for Playlist ${playlistId}, this is unexpected, can not continue.`);
+                return;
+            }            
+
 			// Add tracks based on the playlist selected
-			const trackListContainer = document.getElementById('track-list');
-            trackListContainer.innerHTML = ''; // Clear previous tracks
-			trackListContainer.scrollTop = 0;  // Scroll to top
+            tracksDiv.innerHTML = ''; // Clear previous tracks
 			tracks_array.forEach((item, index) => {
-				const track_item = item.track;
-				createTrackItem(track_item, trackListContainer);
+				const track_data = item.track;
+				createTrackItem(track_data, tracksDiv, playlistId);
+				});
+            
+            // restart the list of playing songs
+            playlistTracksToPlay = Array.from(tracksDiv.children);
+
+			// Display that view
+			toggleTab('playing');
+            
+            // Scroll to top. Doing it after toggling the tab as it wasn't working doing it before
+            tracksDiv.scrollTop = 0;  
+        }
+
+        function createTrackItem(track_data, trackListContainer, playlistId=""){
+            const trackElement = document.createElement('div');
+            trackElement.className = 'track-item';
+            trackElement.id = trackListContainer.id + "-" +  track_data.id;
+            // store Play data in the HTML object to use when playing. Can NOT store complex or nested objects
+            trackElement.dataset.track_id = track_data.id;
+            trackElement.dataset.track_name = track_data.name;
+
+            trackElement.onclick = () => playTrack(trackElement);
+
+            // add track image
+            const img = document.createElement('img');
+            let thumbnail_small = undefined;
+            let thumbnail_large = undefined;
+            
+            if ('album' in track_data && 'images' in track_data.album && track_data.album.images !== null && Array.isArray(track_data.album.images) && track_data.album.images.length > 0) {
+                thumbnail_small =  track_data.album.images[track_data.album.images.length-1].url;
+                thumbnail_large =  track_data.album.images[0].url;
+            }
+            else {
+                thumbnail_small =  "https://via.placeholder.com/50";
+                thumbnail_large =  "https://via.placeholder.com/50";
+            }
+            img.src = thumbnail_small;
+            trackElement.appendChild(img);
+
+            // store Play data in the HTML object to use when playing
+            trackElement.dataset.thumbnail = thumbnail_large;
+
+            // add track details
+            const details = document.createElement('div');
+            details.className = 'details';
+            const title = document.createElement('div');
+            title.className = 'title';	
+            title.textContent = track_data.name;				
+            const description = document.createElement('div');
+            description.className = 'description';	
+            description.textContent = getTrackAlbumArtist(track_data);	
+            
+            details.appendChild(title);
+            details.appendChild(description);
+            trackElement.appendChild(details);
+
+            // add menu button
+            const buttonMenuId = 'track-menu-' + track_data.id
+            const menuButton = document.createElement('button');
+            menuButton.className = 'menu-button';
+            menuButton.innerHTML = '☰';
+            // menuButton.onclick = () => toggleMenu(buttonMenuId, event);
+            
+            menuButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                showContextMenu(event, trackElement, playlistId);
+            });
+
+            trackElement.appendChild(menuButton);
+
+            trackListContainer.appendChild(trackElement);
+        }
+
+        async function addToPlaylistCallback(playlistName, trackElement) {
+            // get the playlist
+            const playlist = playlists_data.find(pl => pl.name === playlistName);
+            // when you use find, if it does not find it, it returns undefined
+            if (typeof playlist === "undefined" || !("id" in playlist)) {
+                console.error(`Can not find ${playlistName} in playlist list, this is unexpected, can not add track to playlist.`);
+                return;
+            }
+
+            // get the track id
+            const track_id = trackElement.dataset.track_id;
+            const track_name = trackElement.dataset.track_name;
+
+            if (typeof track_id === "undefined") {
+                console.error(`Can not find track_id in track Element, this is unexpected, can not add track to playlist.`);
+                return;
+            }
+
+            // Get the tracks to check if the track is not already there
+			const tracks_array = await fetchMusicAppPlaylistTracks(accessToken, playlist.id);
+            const track_in_list = tracks_array.find(item => item.track.id === track_id);
+
+            // Stop if the track is already in the list
+            if (typeof track_in_list !== "undefined") {
+                alert(`Track ${track_name} is already in playlist ${playlistName}, no action taken`);
+                return;
+            }
+            
+            // Adding the track to the list
+            try {
+                const addTrack = await addPlaylistItems(accessToken, playlist.id, [track_id])
+                console.log(`Added ${track_name} to ${playlistName}: ${addTrack}`);
+            } catch (error) {
+                console.log(`Error adding track ${track_name} to ${playlistName}: ${error.message}`);
+                return;
+            }
+
+            // Clean up cached data for the playlist
+            try {
+                sessionStorage.removeItem(playlist.id);
+            } catch (error) {
+                console.log(`Error removing sessionStorage for ${playlist.id}, this is unexpected: ${error.message}`);
+                return;
+            }
+        }
+
+        async function removeFromPlaylistCallback (trackElement, playlistId) {
+            // get the track id
+            const track_id = trackElement.dataset.track_id;
+            const track_name = trackElement.dataset.track_name;
+
+            if (typeof track_id === "undefined") {
+                console.error(`Can not find track_id in track Element, this is unexpected, can not remove from playlist.`);
+                return;
+            }
+            
+            if (typeof playlistId !== 'string') {
+                console.error(`playlistId is not a string, this is unexpected, can not remove from playlist.`);
+                return;
+            }        
+            
+            // Ask the user to confirm
+            const userResponse = confirm(`Do you want to remove this track from the list?`);
+            if (!userResponse) {
+                console.log(`User canceled track ${track_name} removal from ${playlistId}, cancelling`);
+                return;
+            }
+            
+            // Removing the track from the list
+            try {
+                const removeTrack = await removePlaylistItems(accessToken, playlistId, [track_id])
+                console.log(`Removed track ${track_name} from playlist: ${removeTrack}`);
+                // delete HTML item
+                trackElement.remove();
+            } catch (error) {
+                console.log(`Error removing track ${track_name} from ${playlistId}: ${error.message}`);
+                return;
+            }
+
+            // Clean up cached data for the playlist
+            try {
+                sessionStorage.removeItem(playlistId);
+            } catch (error) {
+                console.log(`Error removing sessionStorage for ${playlistId}, this is unexpected: ${error.message}`);
+                return;
+            }
+
+        }
+
+        function getTrackAlbumArtist(track_data){
+            // extracts a comma separated list of the artists from a track object
+            const maxLenght = 50; 
+            let content = "";
+            let artists = "";
+            if ('album' in track_data) {
+                content = track_data.album.name;
+            }
+            if ('artists' in track_data && track_data.artists.length > 0) {
+                for (let i = 0; i < track_data.artists.length; i++) {
+                    let sep = "";
+                    if (artists !== "") {
+                        sep = ", "
+                    }
+                    if (artists == "" || artists.lenght < 50) {
+                        artists = artists + sep + track_data.artists[i].name;
+                    }
+                    else {
+                        break;
+                    }
+                }
+            }
+            let sep2 = "";
+            if (artists !== "") {
+                sep2 = " | "
+            }
+            content = content + sep2 + artists
+            return content;
+        }
+
+        // --------------------- UI Functions ---------------------
+        // Switch between tabs
+        function toggleTab(tabName) {
+            playListControls.classList.remove('active');
+            searchControls.classList.remove('active');
+            playingControls.classList.remove('active');
+
+            playListsDiv.classList.remove('active');
+            searchResultsDiv.classList.remove('active');
+            tracksDiv.classList.remove('active');
+            adminDiv.classList.remove('active');
+
+            playlistsBtn.classList.remove('active');
+            searchBtn.classList.remove('active');
+            playingBtn.classList.remove('active');
+            adminBtn.classList.remove('active');
+
+            if (tabName === 'playlists') {
+                playListControls.classList.add('active');
+                playListsDiv.classList.add('active');
+                playlistsBtn.classList.add('active');
+            } else if (tabName === 'search') {
+                searchControls.classList.add('active');
+                searchResultsDiv.classList.add('active');
+                searchBtn.classList.add('active');
+            } else if (tabName === 'playing') {
+                playingControls.classList.add('active');
+                tracksDiv.classList.add('active');
+                playingBtn.classList.add('active');
+            } else if (tabName === 'admin') {
+                adminDiv.classList.add('active');
+                adminBtn.classList.add('active');
+            }            
+        }
+
+        // Show the context menu
+        function showContextMenu(event, trackElement, playlistId="") {
+            // Remove any existing menus
+            const existingMenu = document.querySelector(".dropdown-menu");
+            if (existingMenu) existingMenu.remove();
+
+            // Create a new menu
+            const menu = document.createElement("div");
+            menu.className = "dropdown-menu";
+            menu.style.left = `${event.pageX-160}px`;
+            menu.style.top = `${event.pageY}px`;
+
+            // Remove from playlist option
+            if (playlistId !== "") {  // Only remove from playlist in a track that is in a playlist view
+                const removeOption = document.createElement("div");
+                removeOption.className = "menu-item";
+                removeOption.innerText = "Remove from playlist";
+                removeOption.addEventListener("click", () => {
+                    removeFromPlaylistCallback(trackElement, playlistId);
+                    menu.remove();
+                });
+                menu.appendChild(removeOption);
+             }
+
+            // Add to playlist
+            const options = currentowner_playlists
+                .map(playlist => playlist.name);
+            const addToPlaylistOption = document.createElement("div");
+            addToPlaylistOption.className = "menu-item";
+            addToPlaylistOption.innerText = "Add to playlist";
+            addToPlaylistOption.addEventListener("click", () => {
+                selectionWindow(options, addToPlaylistCallback, trackElement);
+                menu.remove();
+                });
+            menu.appendChild(addToPlaylistOption);
+
+            // Add playlist options
+            /*
+            const playlistDropdown = document.createElement("select");
+
+            currentowner_playlists.forEach((playlist) => {
+                const playlistOption = document.createElement("option");
+                playlistOption.value = playlist.id;
+                playlistOption.className = "menu-item";
+                playlistOption.innerText = playlist.name;
+                playlistOption.addEventListener("change", () => {
+                    addToPlaylistCallback(playlist.id);
+                    menu.remove();
+                });
+                playlistDropdown.appendChild(playlistOption);
+            });
+            menu.appendChild(playlistDropdown);
+            */
+
+            // Append menu to the body
+            document.body.appendChild(menu);
+
+            // Close menu when clicking elsewhere
+            document.addEventListener(
+                "click",
+                () => {
+                    menu.remove();
+                },
+                { once: true }
+            );
+        }
+
+        // Pop up window to pick one option
+        function selectionWindow(options, callback, originElement) {
+            // Create a new window
+            const container = document.createElement("div");
+            
+            // Create the HTML content as a string
+            const htmlContent = `
+                <div id="popup" style="display: none;">
+                <div class="popup-content">
+                    <span id="popup-close" class="popup-close">&times;</span>
+                    <h3 class="popup-title">Select an Option</h3>
+                    <ul id="popup-options" class="popup-options"></ul>
+                </div>
+                </div>
+            `;
+            // Inject the HTML into the container
+            container.innerHTML = htmlContent;
+            // Append menu to the body
+            document.body.appendChild(container);
+            const popup = document.getElementById('popup');
+            const optionsContainer = document.getElementById('popup-options');
+            const closeButton = document.getElementById('popup-close');
+
+            // Clear previous options
+            optionsContainer.innerHTML = '';
+
+            // Create list items for each option
+            options.forEach(option => {
+                const listItem = document.createElement('li');
+                listItem.textContent = option;
+
+                // Add click event to pass the selected option to the callback
+                listItem.addEventListener('click', () => {
+                    callback(option, originElement); // Call the callback with the selected value
+                    popup.style.display = 'none'; // Hide the popup
+                });
+
+                optionsContainer.appendChild(listItem);
+            });
+
+            // Show the popup
+            popup.style.display = 'flex';
+
+            // Close button functionality
+            closeButton.addEventListener('click', () => {
+                // popup.style.display = 'none';
+                popup.remove();
+            });
+
+        }
+
+        // Function to show the loading screen used when waiting for a new track to load
+        function showLoadingScreen() {
+            const loadingOverlay = document.createElement("div");
+            loadingOverlay.id = "loadingOverlay";
+            loadingOverlay.innerHTML = `<div class="spinner"></div>`;
+            document.body.appendChild(loadingOverlay);
+        }
+
+        // Function to hide the loading screen used when waiting for a new track to load
+        function hideLoadingScreen() {
+            const loadingOverlay = document.getElementById("loadingOverlay");
+            if (loadingOverlay) {
+                loadingOverlay.remove();
+            }
+        }
+
+        // Console stuff
+        function overwriteConsole() {
+            // Override the console.log function
+            (function() {
+                const originalConsoleLog = console.log;
+                console.log = function(...args) {
+                    // Call the original console.log function
+                    originalConsoleLog.apply(console, args);
+
+                    // Convert the arguments to a string and add them to the div
+                    const message = args.join(' ') + '<br>';
+                    consoleOutput.innerHTML += message;
+
+                    // Scroll to the bottom of the div
+                    consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                };
+            })();
+        }
+
+        // --------------------- Playback functions ---------------------
+        // --------------------- Initiate app parameters ---------------------
+        let currentTrackElement = null;
+        let playlistTracksToPlay = null;
+        let isPlayingAll = false;
+        let isRandom = false;
+
+        async function playTrack(trackElement) {
+            
+            let audioURL =  null;
+            let audioBlob = null;
+            
+            // get the track info
+            const track_id = trackElement.dataset.track_id;
+            const track_name = trackElement.dataset.track_name;
+
+            if (typeof track_id === "undefined") {
+                console.error(`Can not find track_id in track Element, this is unexpected, can not play the track.`);
+                return;
+            }
+            console.log(`Playing track: ${track_name}`);
+
+            // setting as current track
+            currentTrackElement = trackElement;
+
+            // making it active, and deactivating everything else
+            const allTracks = document.querySelectorAll('.track-item');
+            allTracks.forEach(track => track.classList.remove('active'));
+            trackElement.classList.add('active');
+
+            // getting audio source
+            showLoadingScreen();
+            try {
+                // audioURL = "https://samplelib.com/lib/preview/mp3/sample-3s.mp3";
+                let db = await getMediaDatabase(dbName, storeName);
+                let audioBlob  = await getCachedMedia(db, storeName, track_id);
+                if (audioBlob) {
+                    audioURL  = URL.createObjectURL(audioBlob);
+                    console.log(`Retrieved media for track: ${track_name}`);
+                } else {
+                    console.log("Audio not cached, fetching from network...");
+                    const trackURL = await getTrackDownloadURL(track_id);
+                    if (trackURL){
+                        audioBlob = await fetchAudioBlob(trackURL);
+                        if (audioBlob) {
+                            audioURL  = URL.createObjectURL(audioBlob);
+                            console.log('Fetched audio blob');
+                            await cacheMedia(db, storeName, track_id, audioBlob);
+                            console.log('Cached media');
+                        } else {    
+                            console.log(`No Audio blob for track: ${track_name}`);
+                        }
+                    } else {    
+                        console.log(`No track URL for track: ${track_name}`);
+                    }						
+                }
+            } catch (error) {
+                console.error(`Error: ${error.message}`);
+            }
+            hideLoadingScreen();
+
+            // if it is not in the playing tab, stop the auto-play
+            if ( trackElement.parentNode != tracksDiv) {
+                console.log('Disabling auto-play');
+                isPlayingAll = false;
+                playAllButton.classList.remove('active');
+            }  
+
+            // if everything is fine, play the track
+            if (audioURL) {
+					videoPlayer.pause();
+                    await new Promise(resolve => setTimeout(resolve, 0)); // Wait for the pause to settle
+                    videoPlayer.removeAttribute('src'); // Unload the current media
+                    videoPlayer.load(); // Reset the player
+					videoPlayer.src = audioURL;
+                    // thumbnail
+                    videoPlayer.setAttribute('poster',trackElement.dataset.thumbnail);
+                    videoPlayer.play();
+            }       
+        }
+
+        async function fetchAudioBlob(inputURL) {
+            try {
+                // Checking the current window to use proxy for localhost
+                let queryURL = undefined;
+                if (window.location.href.startsWith("http://localhost/")) {
+                    queryURL = `http://localhost:8000/?url=${encodeURIComponent(inputURL)}`;
+                    console.log("Using proxy while in localhost");
+                } else {
+                    queryURL = inputURL;
+                }
+                
+                const response = await fetch(queryURL);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch audio file: ${response.status} ${response.statusText}`);
+                }
+
+                // Get the audio data as a blob
+                const audioBlob = await response.blob();
+                return audioBlob;
+
+            } catch (error) {
+                console.error("Error fetching audio blob:", error);
+                return null;
+            }
+        }
+
+        videoPlayer.addEventListener('ended', () => {
+            if (isPlayingAll) {
+                playNextSong();
+            }
+        });
+
+        function playAllCallback() {
+            if (isPlayingAll) {
+                isPlayingAll = false;
+                playAllButton.classList.remove('active');
+                // videoPlayer.pause();
+            } else {
+                isPlayingAll = true;
+                playAllButton.classList.add('active');
+                if (videoPlayer.paused && videoPlayer.src ) {
+                    if (videoPlayer.currentTime === videoPlayer.duration) {
+                        playNextSong();
+                    } else {
+                        // if video was just paused in the middle, continue
+                        videoPlayer.play;                        
+                    }
+                }
+                if (videoPlayer.paused && !videoPlayer.src) {
+                    playNextSong();
+                }
+            }
+        }
+
+        function ramdomPlayCallback() {
+            isRandom = !isRandom;
+            if (isRandom) {
+                randomPlayButton.classList.add('active');
+            } else {
+                randomPlayButton.classList.remove('active');
+            }
+        }
+
+        function playNextSong() {
+            if (!playlistTracksToPlay) {
+                console.log("No tracks to play");
+                return null;
+            }
+            
+            let currentSongIndex = undefined;
+            if (!currentTrackElement) {
+                currentSongIndex = 0;
+            } else { 
+                currentSongIndex = playlistTracksToPlay.indexOf(currentTrackElement);
+            }
+            
+            let nextIndex = undefined;
+            if (isRandom) {
+                const remainingIndices = playlistTracksToPlay.map((_, i) => i).filter(i => i !== currentSongIndex);
+                nextIndex = remainingIndices[Math.floor(Math.random() * remainingIndices.length)];
+            } else {
+                nextIndex = (currentSongIndex + 1) % playlistTracksToPlay.length;
+            }
+            const nextTrack = playlistTracksToPlay[nextIndex];
+            ensureVisible(nextTrack);
+            playTrack(nextTrack);
+        }
+
+        function ensureVisible(element) {
+            const containerRect = tracksDiv.getBoundingClientRect();
+            const elementRect = element.getBoundingClientRect();
+
+            if (elementRect.top < containerRect.top || elementRect.bottom > containerRect.bottom) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // --------------------- Initiation calls ---------------------
+        overwriteConsole();
+        main();
+        toggleTab('playlists');
+        
+        /* Archive */
+
+        function populateDummySearchResults() {
+            // Load search results into Search tab
+            const tracks_array = Array.from({ length: 20 }, (_, i) => ({
+                name: `Track ${i + 1}`,
+                id: `${i + 1}`,
+                album: {artists:[{name: "Tu puta madre" }],
+                        images: [{ url: `https://i.scdn.co/image/ab67616d0000485138968dc90dc0ff8fc1d7b866`}]},
+                thumbnail: `https://i.scdn.co/image/ab67616d0000485138968dc90dc0ff8fc1d7b866`
+            }));
+
+			// Add tracks based on the playlist selected
+            searchResultsDiv.innerHTML = ''; // Clear previous tracks
+			searchResultsDiv.scrollTop = 0;  // Scroll to top
+			tracks_array.forEach((item, index) => {
+				// const track_data = item.track;
+                const track_data = item;
+				createTrackItem(track_data, searchResultsDiv);
 				});
 
 				// Display that view
-				showTracks();	
-			}
+				toggleTab('search');
+        }
 
-			async function populateSearchResults(accessToken){
-				const query = document.getElementById('search-text-input').value;
-				// Get the tracks
-				const tracks_array = await searchMusicApp(accessToken, query);
-				if (!(tracks_array)){
-					return null;  // Finalize execution
-				}
-				// print(tracks_array);
-				// Add tracks based on the playlist selected
-				const trackListContainer = document.getElementById('search-track-list');
-				trackListContainer.innerHTML = ''; // Clear previous tracks
-				trackListContainer.scrollTop = 0;  // Scroll to top
-				tracks_array.forEach((track_item, index) => {
-					createTrackItem(track_item, trackListContainer);
-					});
+        function populateDummyPlaylists() {
+            const playlists = Array.from({ length: 20 }, (_, i) => ({
+                name: `Playlist ${i + 1}`,
+                id: `${i + 1}`,
+                description: `Description for playlist ${i + 1}`,
+                images: [{ url: `https://mosaic.scdn.co/60/ab67616d00001e0233564b826ec8b117c7a05906ab67616d00001e0243eb3794977db60bced5ad16ab67616d00001e02b9ed3a94d94135ec6c3c9c2aab67616d00001e02ec244a784ef16ed95d9c665c`}],
+            }));
+            playListsDiv.innerHTML = '';
+            playlists.forEach(playlist => {
+                createPlaylistItem(null, playListsDiv, playlist)
+            });
+        } 
+        
+        async function populateDummyTracks(accessToken, playlistId){
+			// Get the tracks
+			//const tracks_array = await fetchMusicAppPlaylistTracks(accessToken, playlistId);
+            const tracks_array = Array.from({ length: 20 }, (_, i) => ({
+                name: `Track ${i + 1}`,
+                id: `${i + 1}`,
+                album: {artists:[{name: "Tu puta madre" }],
+                        images: [{ url: `https://i.scdn.co/image/ab67616d0000485138968dc90dc0ff8fc1d7b866`}]},
+                thumbnail: `https://i.scdn.co/image/ab67616d0000485138968dc90dc0ff8fc1d7b866`
+            }));
 
-			}
-
-			function createTrackItem(track_item, trackListContainer){
-				const trackItem = document.createElement('div');
-				trackItem.className = 'track-item';
-				trackItem.id = track_item.id;
-				trackItem.onclick = () => playVideo(track_item);
-
-				// add track image
-				const img = document.createElement('img');
-				let thumbnail = undefined;
-				if ('album' in track_item && 'images' in track_item.album && track_item.album.images.length > 0) {
-					thumbnail =  track_item.album.images[track_item.album.images.length-1].url;
-				}
-				else {
-					thumbnail =  "https://via.placeholder.com/50";
-				}
-				img.src = thumbnail;
-				trackItem.appendChild(img);
-
-				// add track details
-				const details = document.createElement('div');
-				details.className = 'details';
-				const title = document.createElement('div');
-				title.className = 'title';	
-				title.textContent = track_item.name;				
-				const description = document.createElement('div');
-				description.className = 'description';	
-				description.textContent = getTrackAlbumArtist(track_item);	
-				
-				details.appendChild(title);
-				details.appendChild(description);
-				trackItem.appendChild(details);
-
-				// add menu button
-				const buttonMenuId = 'track-menu-' + track_item.id
-				const menuButton = document.createElement('button');
-				menuButton.className = 'menu-button';
-				menuButton.innerHTML = '⋮';
-				menuButton.onclick = () => toggleMenu(buttonMenuId, event);
-				trackItem.appendChild(menuButton);
-				
-				const dropdownMenu = document.createElement('div');
-				dropdownMenu.id = buttonMenuId;
-				dropdownMenu.className = 'dropdown-menu';
-				const removeButton = document.createElement('button');
-				removeButton.innerHTML = 'Remove track from list';
-				removeButton.onclick = () => alert('Remove track');
-				dropdownMenu.appendChild(removeButton);
-
-				trackItem.appendChild(dropdownMenu);
-
-				trackListContainer.appendChild(trackItem);
-			}
-
-			async function playPreview(trackItem) {
-				const videoPlayer = document.getElementById('videoPlayer');
-				const audioURL = trackItem.preview_url;
-				if (audioURL != null) {
-					videoPlayer.pause();
-					videoPlayer.src = audioURL;
-					videoPlayer.style.display = 'block';
-					videoPlayer.play();
-				}
-			}
-
-			async function playVideo(trackItem) {
-				const videoPlayer = document.getElementById('videoPlayer');
-				
-				let audioURL =  null;
-				let audioBlob = null;
-				
-				let db = await getMediaDatabase(dbName, storeName);
-            	
-				console.log(`Processing track: ${trackItem.name}`);
-
-				showLoadingScreen();
-				try {
-					let audioBlob  = await getCachedMedia(db, storeName, trackItem.id);
-					if (audioBlob) {
-						audioURL  = URL.createObjectURL(audioBlob);
-						console.log(`Retrieved media for track: ${trackItem.name}`);
-					} else {
-						console.log("Audio not cached, fetching from network...");
-						const trackURL = await getTrackDownloadURL(trackItem.id);
-						if (trackURL){
-							audioBlob = await fetchAudioBlob(trackURL);
-							if (audioBlob) {
-								audioURL  = URL.createObjectURL(audioBlob);
-								console.log('Fetched audio blob');
-								await cacheMedia(db, storeName, trackItem.id, audioBlob);
-								console.log('Cached media');
-							} else {    
-								console.log(`No Audio blob for track: ${trackItem.name}`);
-							}
-						} else {    
-							console.log(`No track URL for track: ${trackItem.name}`);
-						}						
-					}
-				} catch (error) {
-					console.error(`Error: ${error.message}`);
-				}
-				hideLoadingScreen();
-				
-				if (audioURL) {
-					videoPlayer.pause();
-					videoPlayer.src = audioURL;
-
-					// add thumbnail
-					
-					let thumbnail = undefined;
-					if ('album' in trackItem && 'images' in trackItem.album && trackItem.album.images.length > 0) {
-						thumbnail =  trackItem.album.images[0].url;
-					}
-					else {
-						thumbnail =  "https://via.placeholder.com/50";
-					}
-					videoPlayer.setAttribute('poster',thumbnail);
-					
-
-					videoPlayer.style.display = 'block';
-					videoPlayer.play();
-				}
-			}
-
-			async function fetchAudioBlob(inputURL) {
-				try {
-					// CHANGE THIS LINE BEFORE PUBLISHING
-					const proxyURL = `http://localhost:8000/?url=${encodeURIComponent(inputURL)}`;
-					const response = await fetch(inputURL);
-
-					if (!response.ok) {
-						throw new Error(`Failed to fetch audio file: ${response.status} ${response.statusText}`);
-					}
-
-					// Get the audio data as a blob
-					const audioBlob = await response.blob();
-					return audioBlob;
-
-				} catch (error) {
-					console.error("Error fetching audio blob:", error);
-					return null;
-				}
-			}
-
-			function getTrackAlbumArtist(track_item){
-				const maxLenght = 50; 
-				let content = "";
-				let artists = "";
-				if ('album' in track_item) {
-					content = track_item.album.name;
-				}
-				if ('artists' in track_item && track_item.artists.length > 0) {
-					for (let i = 0; i < track_item.artists.length; i++) {
-						let sep = "";
-						if (artists != "") {
-							sep = ", "
-						}
-						if (artists == "" || artists.lenght < 50) {
-							artists = artists + sep + track_item.artists[i].name;
-						}
-						else {
-							break;
-						}
-					}
-				}
-				let sep2 = "";
-				if (artists != "") {
-					sep2 = " | "
-				}
-				content = content + sep2 + artists
-				return content;
-			}
-
-			// Functions for toggling Menu
-			function toggleMenu(menuId, event) {
-				// Close other open menus
-				document.querySelectorAll('.dropdown-menu').forEach(menu => {
-					if (menu.id !== menuId) {
-						menu.classList.remove('show'); // Ensure you are toggling the menu itself
-					}
+			// Add tracks based on the playlist selected
+            tracksDiv.innerHTML = ''; // Clear previous tracks
+			tracks_array.forEach((item, index) => {
+				// const track_data = item.track;
+                const track_data = item;
+				createTrackItem(track_data, tracksDiv);
 				});
+            
+            // restart the list of playing songs
+            playlistTracksToPlay = Array.from(tracksDiv.children);
 
-				// Toggle the selected menu
-				const menu = document.getElementById(menuId);
-				if (menu) {
-					menu.classList.toggle('show');
-				}
+			// Display that view
+			toggleTab('playing');
+            
+            // Scroll to top. Doing it after toggling the tab as it wasn't working doing it before
+            tracksDiv.scrollTop = 0;  
+        }
 
-				// Prevent click from propagating and closing the menu immediately
-				if (event) {
-					event.stopPropagation();
-				}
-			}
-
-			function print(obj) {
-				const jsonString = JSON.stringify(obj, null, 2);
-				console.log(jsonString);
-			}
-
-			function populateUI(profile) {
-				document.getElementById("user-name").innerText = profile.display_name;
-				if (profile.images.length > 0) {
-					document.getElementById("user-picture").src = profile.images[0].url;
-				}
-			}
-
-		</script>
-		<!-- UI Functions -->
-		<script> 
-			function showPlaylists() {
-				// Show Playlists
-				document.getElementById('playlist-container').style.display = 'block';
-				// Hide Everything else
-				document.getElementById('admin-container').style.display = 'none';
-				document.getElementById('search-container').style.display = 'none';
-				document.getElementById('track-container').style.display = 'none';
-				document.getElementById('playlist-controls-bar').style.display = 'none';
-				// document.getElementById('videoPlayer').style.display = 'none';  // Hide the video player
-			}
-
-			function showTracks() {
-				// Hide Everything else
-				document.getElementById('admin-container').style.display = 'none';
-				document.getElementById('playlist-container').style.display = 'none';
-				document.getElementById('search-container').style.display = 'none';
-
-				document.getElementById('track-container').style.display = 'block';
-			    document.getElementById('playlist-controls-bar').style.display = 'flex';	
-				// Show the VideoPlayer again
-				// document.getElementById('videoPlayer').style.display = 'block';
-			}
-
-			function showSearch() {
-				// Show Admin
-				document.getElementById('search-container').style.display = 'block';
-				// Hide Everything else
-				document.getElementById('playlist-container').style.display = 'none';
-				document.getElementById('track-container').style.display = 'none';
-				document.getElementById('admin-container').style.display = 'none';
-				document.getElementById('playlist-controls-bar').style.display = 'none';
-				//document.getElementById('videoPlayer').style.display = 'none';  // Hide the video player				
-			}
-
-			function showAdmin() {
-				// Show Admin
-				document.getElementById('admin-container').style.display = 'block';
-				// Hide Everything else
-				document.getElementById('playlist-container').style.display = 'none';
-				document.getElementById('search-container').style.display = 'none';
-				document.getElementById('track-container').style.display = 'none';
-				document.getElementById('playlist-controls-bar').style.display = 'none';
-				//document.getElementById('videoPlayer').style.display = 'none';  // Hide the video player				
-			}
-
-			function playAll() {
-				// Logic to play all tracks in order
-				alert('Playing all tracks in order');
-			}
-
-			function playRandom() {
-				// Logic to play tracks in random order
-				alert('Playing tracks in random order');
-			}
-
-			// Function to show the loading screen used when waiting for a new track to load
-			function showLoadingScreen() {
-				const loadingOverlay = document.createElement("div");
-				loadingOverlay.id = "loadingOverlay";
-				loadingOverlay.innerHTML = `<div class="spinner"></div>`;
-				document.body.appendChild(loadingOverlay);
-			}
-
-			// Function to hide the loading screen used when waiting for a new track to load
-			function hideLoadingScreen() {
-				const loadingOverlay = document.getElementById("loadingOverlay");
-				if (loadingOverlay) {
-					loadingOverlay.remove();
-				}
-			}
-
-			// Close the menu if clicked outside
-			document.addEventListener('click', function () {
-			document.querySelectorAll('.track-item').forEach(item => {
-				item.classList.remove('show');
-			});
-			});
-
-			// Prevent closing the menu when clicking inside it
-			document.querySelectorAll('.dropdown-menu').forEach(menu => {
-			menu.addEventListener('click', function (event) {
-				event.stopPropagation();
-			});
-			});
-
-		</script>
-    </body>
+    </script>
+</body>
 </html>
