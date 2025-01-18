@@ -30,16 +30,27 @@
         }
 
         .videoplayer-container {
-            background-color: black;
             height: 200px;
             display: flex;
             justify-content: center;
             align-items: center;
+            background: no-repeat center/cover; /* The background image will be set dynamically */
+            position: relative; /* Enables proper positioning for the audio element */
+            overflow: hidden; /* Ensures no extra content spills outside the container */
+        }
+
+        .videoplayer-container audio {
+            position: absolute; /* Position it at the bottom */
+            bottom: 0;
+            left: 0;
+            width: 100%; /* Makes the audio controls span the full width */
+            background: transparent; /* Ensures the audio element doesn’t hide the background */
+            z-index: 1; /* Ensure it’s above the background but below any additional content */
         }
 
         video {
             width: 100%;  /* Full width of the parent container */
-			height: 100%; /* Hide the video display */
+			height: 100%; 
 			object-fit: cover;
 		    display: block; /* Hide by default */
         }
@@ -386,16 +397,16 @@
         <span style="vertical-align: middle;">Spot</span><span style="vertical-align: middle;">ify</span>
         <div style="vertical-align: middle; float: right; display: flex; align-items: center;">
             <span style="margin-right: 10px; font-size: 14px;" id="user-name"></span>
-            <img src="https://via.placeholder.com/50" style="width: 50px; height: 50px;" id="user-picture">
+            <img src="" style="width: 50px; height: 50px;" id="user-picture">
         </div>
     </div>
 
     <!-- Video Player -->
-    <div class="videoplayer-container">
-        <video controls id="video-player">
-            <source src="" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
+    <div class="videoplayer-container" id="videoplayer-container">
+        <audio controls id="video-player">
+            <source src="" type="audio/mpeg">
+            Your browser does not support the audio tag.
+        </audio>
     </div>
 
     <!-- Control Bar Tabs -->
@@ -417,6 +428,7 @@
             <div id="playlist-controls-bar" class="controls-bar">
                 <div class="control-button" onclick="toggleTab('playlists')">Back</div>
                 <div id="play-all-btn" class="control-button" onclick="playAllCallback()">Play All</div>
+                <div id="play-next-btn" class="control-button" onclick="playNextSong()">⏭</div>
                 <div id="random-play-btn" class="control-button" onclick="ramdomPlayCallback()">Random</div>
             </div>
         </div>
@@ -464,6 +476,7 @@
         
         // --------------------- Store HTML objects in variables ---------------------
         const videoPlayer = document.getElementById('video-player');
+        const videoPlayerContainer = document.getElementById('videoplayer-container');
        
         const playListControls= document.getElementById('playlists-controlbar')
         const searchControls = document.getElementById('search-controlbar');
@@ -484,6 +497,15 @@
         const playAllButton = document.getElementById('play-all-btn');
         const randomPlayButton = document.getElementById('random-play-btn');
 
+        // --------------------- Dealing with Music App Data ---------------------
+        const placeholderImage = 'data:image/svg+xml;base64,' + btoa(`
+            <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50">
+                <rect width="50" height="50" fill="#ccc" />
+                <text x="25" y="30" font-size="10" text-anchor="middle" fill="#555">50x50</text>
+            </svg>
+        `);
+        const userPicture = document.getElementById('user-picture');
+        userPicture.src = placeholderImage;
         // --------------------- Dealing with Music App Data ---------------------
         let accessToken = null;
         let playlists_data = null;
@@ -560,6 +582,10 @@
 
         async function populateSearchResults(accessToken){
             const query = document.getElementById('search-text-input').value;
+            if (query === "" || !(query)){
+                return;  // nothing to search, get out
+            }
+            
             // Get the tracks
             let tracks_array = undefined;
             showLoadingScreen();
@@ -596,7 +622,7 @@
                 img.src = playlistObj.images[playlistObj.images.length-1].url;
             }
             else {
-                img.src = "https://via.placeholder.com/50";
+                img.src = placeholderImage;
             }
             playlistItem.appendChild(img);
 
@@ -669,8 +695,8 @@
                 thumbnail_large =  track_data.album.images[0].url;
             }
             else {
-                thumbnail_small =  "https://via.placeholder.com/50";
-                thumbnail_large =  "https://via.placeholder.com/50";
+                thumbnail_small =  placeholderImage;
+                thumbnail_large =  placeholderImage;
             }
             img.src = thumbnail_small;
             trackElement.appendChild(img);
@@ -1092,7 +1118,9 @@
                     videoPlayer.load(); // Reset the player
 					videoPlayer.src = audioURL;
                     // thumbnail
-                    videoPlayer.setAttribute('poster',trackElement.dataset.thumbnail);
+                    // videoPlayer.setAttribute('poster',trackElement.dataset.thumbnail);
+                    videoPlayerContainer.style.background = `url(${trackElement.dataset.thumbnail}) no-repeat center/cover`;
+
                     videoPlayer.play();
             }       
         }
