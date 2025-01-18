@@ -824,6 +824,27 @@
 
         }
 
+        async function deleteCacheCallback(trackElement) {
+            // get the track id
+            const track_id = trackElement.dataset.track_id;
+            const track_name = trackElement.dataset.track_name;
+
+            if (typeof track_id === "undefined") {
+                console.error(`Can not find track_id in track Element, this is unexpected, can not remove from playlist.`);
+                return;
+            }
+
+            // Deleting cache
+            try {
+                let db = await getMediaDatabase(dbName, storeName);
+                const deleteCacheResult = await deleteTrack(db, storeName, track_id);
+                console.log(`Deleted cache for track ${track_name}: ${deleteCacheResult}`);
+            } catch (error) {
+                console.log(`Error deleting cache for track ${track_name}: ${error.message}`);
+                return;
+            }
+        }
+
         function getTrackAlbumArtist(track_data){
             // extracts a comma separated list of the artists from a track object
             const maxLenght = 50; 
@@ -924,6 +945,16 @@
                 menu.remove();
                 });
             menu.appendChild(addToPlaylistOption);
+
+            // Remove cache
+            const deleteCacheOption = document.createElement("div");
+            deleteCacheOption.className = "menu-item";
+            deleteCacheOption.innerText = "Delete cache";
+            deleteCacheOption.addEventListener("click", () => {
+                    deleteCacheCallback(trackElement);
+                    menu.remove();
+                });
+            menu.appendChild(deleteCacheOption);
 
             // Add playlist options
             /*
