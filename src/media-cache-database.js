@@ -95,39 +95,78 @@ async function cacheMedia(db, storeName, track_id, blob) {
 
 async function getCachedMedia(db, storeName, track_id) {
     return new Promise((resolve, reject) => {
-        if (typeof track_id !== 'string' || !track_id) {
-            reject('Invalid Track Id: Id must be a non-empty string');
-            return;
+        try {
+            if (typeof track_id !== 'string' || !track_id) {
+                reject('Invalid Track Id: Id must be a non-empty string');
+                return;
+            }
+
+            const transaction = db.transaction([storeName], 'readwrite');
+            const store = transaction.objectStore(storeName);
+
+            // Get the media data by track_id
+            const request = store.get(track_id);
+
+            request.onsuccess = (event) => {
+                const result = event.target.result;
+                if (result && result.audioBlob) {
+                    // Update lastAccessed timestamp
+                    result.lastAccessed = new Date().toISOString();
+                    const updateRequest = store.put(result); // Update the record with the new lastAccessed time
+
+                    updateRequest.onsuccess = () => {
+                        resolve(result.audioBlob); // Return the Blob (audio/video file)
+                    };
+
+                    updateRequest.onerror = (event) => {
+                        reject(`Error updating lastAccessed timestamp: ${event.target.error}`);
+                    };
+                } else {
+                    resolve(null); // No media found for the given track_id
+                }
+            };
+
+            request.onerror = (event) => {
+                reject(`Error fetching cached media: ${event.target.error}`);
+            };
+        } catch (error) {
+            console.error('Error during get track operation:', error);
+            reject(error);
         }
 
-        const transaction = db.transaction([storeName], 'readwrite');
-        const store = transaction.objectStore(storeName);
+    });
+}
 
-        // Get the media data by track_id
-        const request = store.get(track_id);
-
-        request.onsuccess = (event) => {
-            const result = event.target.result;
-            if (result && result.audioBlob) {
-                // Update lastAccessed timestamp
-                result.lastAccessed = new Date().toISOString();
-                const updateRequest = store.put(result); // Update the record with the new lastAccessed time
-
-                updateRequest.onsuccess = () => {
-                    resolve(result.audioBlob); // Return the Blob (audio/video file)
-                };
-
-                updateRequest.onerror = (event) => {
-                    reject(`Error updating lastAccessed timestamp: ${event.target.error}`);
-                };
-            } else {
-                resolve(null); // No media found for the given track_id
+async function deleteTrack(db, storeName, track_id) {
+    return new Promise((resolve, reject) => {
+        try {
+            if (typeof track_id !== 'string' || !track_id) {
+                reject('Invalid Track Id: Id must be a non-empty string');
+                return;
             }
-        };
+            // Open a transaction on the specified object store
+            const transaction = db.transaction([storeName], 'readwrite');
+            const store = transaction.objectStore(storeName);
 
-        request.onerror = (event) => {
-            reject(`Error fetching cached media: ${event.target.error}`);
-        };
+            // Delete the record with the given track_id
+            const request = store.delete(track_id);
+
+            // Handle success
+            request.onsuccess = () => {
+                console.log(`Record with track_id ${track_id} deleted successfully.`);
+                resolve('ok');
+            };
+
+            // Handle errors
+            request.onerror = (event) => {
+                console.error(`Failed to delete record with track_id ${track_id}:`, event.target.error);
+                reject(event.target.error);
+            };
+
+        } catch (error) {
+            console.error('Error during delete operation:', error);
+            reject(error);
+        }
     });
 }
 
