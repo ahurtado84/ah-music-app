@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -682,6 +682,7 @@
             // store Play data in the HTML object to use when playing. Can NOT store complex or nested objects
             trackElement.dataset.track_id = track_data.id;
             trackElement.dataset.track_name = track_data.name;
+            trackElement.dataset.track_artists = getTrackArtist(track_data);
 
             trackElement.onclick = () => playTrack(trackElement);
 
@@ -873,6 +874,27 @@
             }
             content = content + sep2 + artists
             return content;
+        }
+
+        function getTrackArtist(track_data){
+            // extracts a comma separated list of the artists from a track object
+            const maxLenght = 50; 
+            let artists = "";
+            if ('artists' in track_data && track_data.artists.length > 0) {
+                for (let i = 0; i < track_data.artists.length; i++) {
+                    let sep = "";
+                    if (artists !== "") {
+                        sep = ", "
+                    }
+                    if (artists == "" || artists.lenght < 50) {
+                        artists = artists + sep + track_data.artists[i].name;
+                    }
+                    else {
+                        break;
+                    }
+                }
+            }
+            return artists;
         }
 
         // --------------------- UI Functions ---------------------
@@ -1088,6 +1110,7 @@
             // get the track info
             const track_id = trackElement.dataset.track_id;
             const track_name = trackElement.dataset.track_name;
+            const track_artists = trackElement.dataset.track_artists;
 
             if (typeof track_id === "undefined") {
                 console.error(`Can not find track_id in track Element, this is unexpected, can not play the track.`);
@@ -1114,17 +1137,9 @@
                     console.log(`Retrieved media for track: ${track_name}`);
                 } else {
                     console.log("Audio not cached, fetching from network...");
-                    const trackURL = await getTrackDownloadURL(track_id);
-                    if (trackURL){
-                        audioBlob = await fetchAudioBlob(trackURL);
-                        if (audioBlob) {
-                            audioURL  = URL.createObjectURL(audioBlob);
-                            console.log('Fetched audio blob');
-                            await cacheMedia(db, storeName, track_id, audioBlob);
-                            console.log('Cached media');
-                        } else {    
-                            console.log(`No Audio blob for track: ${track_name}`);
-                        }
+                    audioURL = await getTrackDownloadURL(track_artists + ' ' + track_name);
+                    if (audioURL !== null && audioURL !== undefined && typeof audioURL === "string" && audioURL.trim() !== ""){
+                        storeMedia(db, storeName, track_id, audioURL);
                     } else {    
                         console.log(`No track URL for track: ${track_name}`);
                     }						
@@ -1156,11 +1171,24 @@
             }       
         }
 
+        async function storeMedia(db, storeName, track_id, audioURL){
+            let audioBlob = await fetchAudioBlob(audioURL);
+            if (audioBlob) {
+                // audioURL  = URL.createObjectURL(audioBlob);
+                console.log('Fetched audio blob');
+                await cacheMedia(db, storeName, track_id, audioBlob);
+                console.log('Cached media');
+            } else {    
+                console.log(`No Audio blob for track: ${track_name}`);
+            }
+
+        }
+
         async function fetchAudioBlob(inputURL) {
             try {
                 // Checking the current window to use proxy for localhost
                 let queryURL = undefined;
-                if (window.location.href.startsWith("http://localhost/")) {
+                if (window.location.href.startsWith("http://localhost")) {
                     queryURL = `http://localhost:8000/?url=${encodeURIComponent(inputURL)}`;
                     console.log("Using proxy while in localhost");
                 } else {
