@@ -49,22 +49,26 @@ async function getTrackDownloadURL(searchQuery){
       console.error("DownloadStreamData status is not ok");
       return null;
     } 
+    if (!(downloadStreamData.hasOwnProperty('link')) || downloadStreamData.link.trim() === "") {
+      console.error("DownloadStreamData has no link");
+      return null;
+    } 
+    //const trackURL = await selectStreamURL(downloadStreamData)
 
-    const trackURL = await selectStreamURL(downloadStreamData)
-
-    return trackURL;
+    return downloadStreamData.link;
 }
 
-const apiBaseUrl = 'yt-api.p.rapi' + 'dapi.com'
+const searchAPIEndPoint = 'yt-api.p.rapi' + 'dapi.com'
+const streamAPIEndPoint = 'youtube-mp36.p.rapi' + 'dapi.com'
 
 async function searchTrack(searchQuery){
   // return sampleSearchResults;
-  const url = `https://${apiBaseUrl}/search?query=${encodeURIComponent(searchQuery)}&type=video&duration=short`;
+  const url = `https://${searchAPIEndPoint}/search?query=${encodeURIComponent(searchQuery)}&type=video&duration=short`;
   const options = {
     method: 'GET',
     headers: {
       'x-rapidapi-key': apiKey,
-      'x-rapidapi-host': apiBaseUrl
+      'x-rapidapi-host': searchAPIEndPoint
     }
   };
 
@@ -101,13 +105,40 @@ async function selectVideoId(searchResults){
 }
 
 async function getDownloadStreamData(videoId){
-  //return sampleDownloadStreamData;
-  const url = `https://${apiBaseUrl}/dl?id=${encodeURIComponent(videoId)}&cgeo=ES`;
+  const url = `https://${streamAPIEndPoint}/dl?id=${encodeURIComponent(videoId)}`;
   const options = {
     method: 'GET',
     headers: {
       'x-rapidapi-key': apiKey,
-      'x-rapidapi-host': apiBaseUrl
+      'x-rapidapi-host': streamAPIEndPoint
+    }
+  };
+
+  try {
+      const response = await fetch(url, options);
+      if (response.ok) {
+          const responseData = await response.json(); // Parse the response as JSON
+          return responseData;
+      } else {
+          console.log('Error exchanging code: ' + response.status + " " + response.statusText);
+          return null;
+      }
+
+  } catch (error) {
+      console.log('Error during the request: ' + error.message);
+      return null;
+  } 
+}
+
+async function getDownloadStreamDataYTAPI(videoId){
+  // Using yt-api
+  //return sampleDownloadStreamData;
+  const url = `https://${searchAPIEndPoint}/dl?id=${encodeURIComponent(videoId)}&cgeo=ES`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'x-rapidapi-key': apiKey,
+      'x-rapidapi-host': searchAPIEndPoint
     }
   };
 
@@ -127,7 +158,9 @@ async function getDownloadStreamData(videoId){
   }  
 }
 
-async function selectStreamURL(streamData){
+async function selectStreamURLYTAPI(streamData){
+  // parsing output of yt-api
+
   if (!(streamData.hasOwnProperty('adaptiveFormats'))) {
     console.log("Returned video has no data field");
     return null;
