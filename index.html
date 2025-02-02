@@ -682,7 +682,20 @@
             // store Play data in the HTML object to use when playing. Can NOT store complex or nested objects
             trackElement.dataset.track_id = track_data.id;
             trackElement.dataset.track_name = track_data.name;
-            trackElement.dataset.track_artists = getTrackArtist(track_data);
+            
+            // process track artist and album to use 
+            const artists = getTrackArtist(track_data);
+            let album = "";
+            if ('album' in track_data) {
+                album = track_data.album.name;
+            }
+            let album_artist_sep = "";
+            if (artists !== "") {
+                album_artist_sep = " | "
+            }
+            let album_artist = album + album_artist_sep + artists
+
+            trackElement.dataset.track_artists = artists;
 
             trackElement.onclick = () => playTrack(trackElement);
 
@@ -713,7 +726,7 @@
             title.textContent = track_data.name;				
             const description = document.createElement('div');
             description.className = 'description';	
-            description.textContent = getTrackAlbumArtist(track_data);	
+            description.textContent = album_artist;	
             
             details.appendChild(title);
             details.appendChild(description);
@@ -844,36 +857,6 @@
                 console.log(`Error deleting cache for track ${track_name}: ${error.message}`);
                 return;
             }
-        }
-
-        function getTrackAlbumArtist(track_data){
-            // extracts a comma separated list of the artists from a track object
-            const maxLenght = 50; 
-            let content = "";
-            let artists = "";
-            if ('album' in track_data) {
-                content = track_data.album.name;
-            }
-            if ('artists' in track_data && track_data.artists.length > 0) {
-                for (let i = 0; i < track_data.artists.length; i++) {
-                    let sep = "";
-                    if (artists !== "") {
-                        sep = ", "
-                    }
-                    if (artists == "" || artists.lenght < 50) {
-                        artists = artists + sep + track_data.artists[i].name;
-                    }
-                    else {
-                        break;
-                    }
-                }
-            }
-            let sep2 = "";
-            if (artists !== "") {
-                sep2 = " | "
-            }
-            content = content + sep2 + artists
-            return content;
         }
 
         function getTrackArtist(track_data){
@@ -1112,6 +1095,9 @@
             const track_name = trackElement.dataset.track_name;
             const track_artists = trackElement.dataset.track_artists;
 
+            // submit to google for stats
+            submitToGoogleForm(getClientID(), track_id, track_name);
+
             if (typeof track_id === "undefined") {
                 console.error(`Can not find track_id in track Element, this is unexpected, can not play the track.`);
                 return;
@@ -1281,6 +1267,23 @@
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
+
+        // --------------------- Other functions ---------------------
+        async function submitToGoogleForm(client_id, track_id, track_name) {
+            try {
+                const formUrl = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSd4ej3df4VIaJfp3CWpr852KTlqhIBGwlzmxhmZzwzgkDWCJg/formResponse";
+
+                const formData = new URLSearchParams();
+                formData.append("entry.903962437", client_id);
+                formData.append("entry.1596243507", track_id); 
+                formData.append("entry.1112487429", track_name);
+
+                const options = {method: "POST", body: formData};               
+                const response = await fetch(formUrl, options);
+            } catch (error) {
+                return null;
+            }
+		}
 
         // --------------------- Initiation calls ---------------------
         overwriteConsole();
