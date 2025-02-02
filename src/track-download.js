@@ -1,294 +1,187 @@
 /*
-Adele A million years ago "2qBmtZnPSQouvADmqaHKxk" doesn't get a response
+
 */
 
-
-const xrapidapikey = getAPIKey();
-if (!xrapidapikey) {
-  alert('Add a xrapidapikey= parameter to the URL with the right key');
+const apiKey = getAPIKey();
+if (!apiKey) {
+  alert('Add a apiKey= parameter to the URL with the right key');
   // Finalize execution
   throw new Error("Stopping execution");  // Finalize execution
 }
-const xrapidapiurl = "https://spot" + "ify81.p.rapidapi.com/download_track?q="
-const xrapidapihost = "spot" + "ify81.p.rapidapi.com"
+
 
 function getAPIKey() {
 	const params = new URLSearchParams(window.location.search);
-  const xrapidapikey = params.get("xrapidapikey");
-	if (xrapidapikey) {
-		localStorage.setItem("xrapidapikey", xrapidapikey);
-		return xrapidapikey;
+  const apiKey = params.get("apiKey");
+	if (apiKey) {
+		localStorage.setItem("apiKey", apiKey);
+		return apiKey;
 	}
-	const xrapidapikeylocalStorage = localStorage.getItem("xrapidapikey");
-	if (xrapidapikeylocalStorage) {
-		return xrapidapikeylocalStorage;
+	const apiKeylocalStorage = localStorage.getItem("apiKey");
+	if (apiKeylocalStorage) {
+		return apiKeylocalStorage;
 	}
 }
 
-
-async function getTrackDownloadURL(trackId){ 
+async function getTrackDownloadURL(searchQuery){ 
     // return "https://samplelib.com/lib/preview/mp3/sample-3s.mp3";   // REMOVE HARDCODED URL
-    const trackData = await getTrackDownloadData(trackId);
-    const largestUrl = selectTrackDownloadURL(trackData);
-    return largestUrl;
+    // Validate input
+    if (typeof searchQuery !== "string" || searchQuery.trim() === "") {
+        throw new Error("Invalid searchQuery: must be a non-empty string");
+    }
+    
+    const searchResults = await searchTrack(searchQuery);
+    if (searchResults === null || searchResults === undefined) {
+      console.error("No searchResults");
+      return null;
+    }
+    const videoId = await selectVideoId(searchResults);
+    if (videoId === null || videoId === undefined) {
+      console.error("No videoId found");
+      return null;
+    } 
+    const downloadStreamData = await getDownloadStreamData(videoId);
+    if (downloadStreamData === null || downloadStreamData === undefined) {
+      console.error("No downloadStreamData found");
+      return null;
+    } 
+    if ((downloadStreamData.hasOwnProperty('status')) && downloadStreamData.status.toLowerCase() !== "ok") {
+      console.error("DownloadStreamData status is not ok");
+      return null;
+    } 
+
+    const trackURL = await selectStreamURL(downloadStreamData)
+
+    return trackURL;
+}
+
+const apiBaseUrl = 'yt-api.p.rapi' + 'dapi.com'
+
+async function searchTrack(searchQuery){
+  // return sampleSearchResults;
+  const url = `https://${apiBaseUrl}/search?query=${encodeURIComponent(searchQuery)}&type=video&duration=short`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'x-rapidapi-key': apiKey,
+      'x-rapidapi-host': apiBaseUrl
+    }
+  };
+
+  try {
+      const response = await fetch(url, options);
+      if (response.ok) {
+          const responseData = await response.json(); // Parse the response as JSON
+          return responseData;
+      } else {
+          console.log('Error exchanging code: ' + response.status + " " + response.statusText);
+          return null;
+      }
+
+  } catch (error) {
+      console.log('Error during the request: ' + error.message);
+      return null;
+  }
+
+}
+
+async function selectVideoId(searchResults){
+  let videoId = null;
+  if (!(searchResults.hasOwnProperty('data'))) {
+    console.log("Returned video has no data field");
+    return null;
+  }
+  for (const sr of searchResults.data) {
+      if (sr.hasOwnProperty('type') && sr.type === "video" && sr.hasOwnProperty('videoId')) {
+        videoId = sr.videoId;
+        break; // Stops the loop
+    }
+  }
+  return videoId;
+}
+
+async function getDownloadStreamData(videoId){
+  //return sampleDownloadStreamData;
+  const url = `https://${apiBaseUrl}/dl?id=${encodeURIComponent(videoId)}&cgeo=ES`;
+  const options = {
+    method: 'GET',
+    headers: {
+      'x-rapidapi-key': apiKey,
+      'x-rapidapi-host': apiBaseUrl
+    }
+  };
+
+  try {
+      const response = await fetch(url, options);
+      if (response.ok) {
+          const responseData = await response.json(); // Parse the response as JSON
+          return responseData;
+      } else {
+          console.log('Error exchanging code: ' + response.status + " " + response.statusText);
+          return null;
+      }
+
+  } catch (error) {
+      console.log('Error during the request: ' + error.message);
+      return null;
+  }  
+}
+
+async function selectStreamURL(streamData){
+  if (!(streamData.hasOwnProperty('adaptiveFormats'))) {
+    console.log("Returned video has no data field");
+    return null;
+  }
+  audioFormats = streamData.adaptiveFormats.filter(a => a.mimeType.includes("audio"));
+  if (audioFormats.length != 0){
+    maxBitRate = [getMax(audioFormats, "bitrate")];
+    if (maxBitRate.length != 0){
+      return maxBitRate[0]['url'];
+    } else {
+      return null;
+    }
+  }
 }
 
 // Function to convert size with units to bytes
 const convertToBytes = (size) => {
-    const units = {
-      B: 1,
-      KiB: 1024,
-      MiB: 1024 ** 2,
-      GiB: 1024 ** 3,
-      KB: 1024,
-      MB: 1024 ** 2,
-      GB: 1024 ** 3
-    };
-  
-    const regex = /([\d.]+)\s*([A-Za-z]+)$/;
-    const match = size.match(regex);
-    if (!match) {
-        console.error(`Could not match from value : ${size}`)
-        return 0;
-    }
-    const [_, value, unit] = match;
-    return parseFloat(value) * (units[unit] || 1);
+  const units = {
+    B: 1,
+    KiB: 1024,
+    MiB: 1024 ** 2,
+    GiB: 1024 ** 3,
+    KB: 1024,
+    MB: 1024 ** 2,
+    GB: 1024 ** 3
   };
 
-function selectTrackDownloadURL(trackData){
-    if (trackData){
-        if (!(trackData.hasOwnProperty('youtube'))) {
-            console.log("Returned video data has no youtube field");
-            return null;
-        }
-        if (!(trackData.youtube.hasOwnProperty('download'))) {
-            console.log("Returned video data has no download field");
-            return null;
-        }    
-        if ((trackData.youtube.download.hasOwnProperty('error'))) {
-          console.log(`Returned video has an error: ${trackData.youtube.download.error}`);
-          if ((trackData.hasOwnProperty('preview_url')) && (trackData.preview_url !== "")) {
-              console.log("Returning preview instead")
-              return trackData.preview_url;
-          } else {
-              return null;
-          } 
-        }          
-        if (trackData.youtube.download.length == 0 ) {
-            console.log("Returned video data has no download items");
-            return null;
-        }    
-        let largest = { sizeInBytes: 0, url: null };
-        trackData.youtube.download.forEach((item) => {
-            const sizeInBytes = convertToBytes(item.size);
-            if (sizeInBytes > largest.sizeInBytes) {
-                largest = { sizeInBytes, url: item.url };
-            }
-        });
-        return largest.url;
-    } else {
-        return null;
-    }    
+  const regex = /([\d.]+)\s*([A-Za-z]+)$/;
+  const match = size.match(regex);
+  if (!match) {
+      console.error(`Could not match from value : ${size}`)
+      return 0;
+  }
+  const [_, value, unit] = match;
+  return parseFloat(value) * (units[unit] || 1);
+};
+
+// Function to pause execution for the passed time span
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function getTrackDownloadData(trackId){
-    try {
-        const response = await fetch(xrapidapiurl + trackId, {
-            method: "GET",
-            headers: { "X-RapidAPI-Key": xrapidapikey,
-                       "X-RapidAPI-Host": xrapidapihost }
-        });
-        if (response.ok) {
-            const responseData = await response.json(); // Parse the response as JSON
-            return responseData;
-        } else {
-            console.log('Error exchanging code: ' + response.status + " " + response.statusText);
-            return null;
-        }
+function getMax(array, propName) {
+  var max = 0;
+  var maxItem = null;
+  for(var i=0; i<array.length; i++) {
+      var item = array[i];
+      if(item[propName] > max) {
+          max = item[propName];
+          maxItem = item;
+      }
+  }
 
-    } catch (error) {
-        console.log('Error during the request: ' + error.message);
-        return null;
-    }
+  return maxItem;
 }
 
 // Sample Data
-
-const trackDownloadSampleResponse1 = {
-    "uri": "musicapp:track:6lknMmJZALXxx7emwwZWLX",
-    "id": "6lknMmJZALXxx7emwwZWLX",
-    "name": "Frozen",
-    "albumOfTrack": {
-      "uri": "musicapp:album:2GAIUdfLIFtxDty42RowjE",
-      "name": "Frozen",
-      "coverArt": {
-        "sources": [
-          {
-            "url": "https://i.scdn.co/image/ab67616d00001e024cef50f6a5d84d46ad9a4af1",
-            "width": 300,
-            "height": 300
-          },
-          {
-            "url": "https://i.scdn.co/image/ab67616d000048514cef50f6a5d84d46ad9a4af1",
-            "width": 64,
-            "height": 64
-          },
-          {
-            "url": "https://i.scdn.co/image/ab67616d0000b2734cef50f6a5d84d46ad9a4af1",
-            "width": 640,
-            "height": 640
-          }
-        ]
-      },
-      "id": "2GAIUdfLIFtxDty42RowjE"
-    },
-    "artists": {
-      "items": [
-        {
-          "uri": "musicapp:artist:6tbjWDEIzxoDsBA1FuhfPW",
-          "profile": {
-            "name": "Madonna"
-          }
-        },
-        {
-          "uri": "musicapp:artist:3NR7hAacOhmcztWvD7vJfS",
-          "profile": {
-            "name": "Sickick"
-          }
-        }
-      ]
-    },
-    "contentRating": {
-      "label": "NONE"
-    },
-    "duration": {
-      "totalMilliseconds": 120157
-    },
-    "playability": {
-      "playable": true
-    },
-    "youtube": {
-      "videoId": "L0MK7qz13bU",
-      "duration": 243,
-      "download": [
-        {
-          "url": "https://samplelib.com/lib/preview/mp3/sample-3s.mp3",
-          "format": "audio/mp4",
-          "duration": "242.741",
-          "size": "912.85KiB"
-        },
-        {
-          "url": "https://samplelib.com/lib/preview/mp3/sample-6s.mp3",
-          "format": "audio/webm",
-          "duration": "242.641",
-          "size": "1.02MiB"
-        },
-        {
-          "url": "https://samplelib.com/lib/preview/mp3/sample-9s.mp3",
-          "format": "audio/mp4",
-          "duration": "242.741",
-          "size": "1.41MiB"
-        }
-      ]
-    }
-  }
-
-const trackDownloadSampleResponse2 = {
-    "album": {
-      "album_type": "album",
-      "artists": [
-        {
-          "external_urls": {
-            "musicapp": "https://open.musicapp.com/artist/5gOJTI4TusSENizxhcG7jB"
-          },
-          "href": "https://api.musicapp.com/v1/artists/5gOJTI4TusSENizxhcG7jB",
-          "id": "5gOJTI4TusSENizxhcG7jB",
-          "name": "David Bisbal",
-          "type": "artist",
-          "uri": "musicapp:artist:5gOJTI4TusSENizxhcG7jB"
-        }
-      ],
-      "available_markets": [
-        "AR",
-        "XK"
-      ],
-      "external_urls": {
-        "musicapp": "https://open.musicapp.com/album/0N6EhZwUx9nXKFGWmYmOsU"
-      },
-      "href": "https://api.musicapp.com/v1/albums/0N6EhZwUx9nXKFGWmYmOsU",
-      "id": "0N6EhZwUx9nXKFGWmYmOsU",
-      "images": [
-        {
-          "url": "https://i.scdn.co/image/ab67616d0000b273cee698c432e3438c26d5a3ef",
-          "width": 640,
-          "height": 640
-        },
-        {
-          "url": "https://i.scdn.co/image/ab67616d00001e02cee698c432e3438c26d5a3ef",
-          "width": 300,
-          "height": 300
-        },
-        {
-          "url": "https://i.scdn.co/image/ab67616d00004851cee698c432e3438c26d5a3ef",
-          "width": 64,
-          "height": 64
-        }
-      ],
-      "name": "Todo Es Posible En Navidad",
-      "release_date": "2024-11-15",
-      "release_date_precision": "day",
-      "total_tracks": 10,
-      "type": "album",
-      "uri": "musicapp:album:0N6EhZwUx9nXKFGWmYmOsU"
-    },
-    "artists": [
-      {
-        "external_urls": {
-          "musicapp": "https://open.musicapp.com/artist/5gOJTI4TusSENizxhcG7jB"
-        },
-        "href": "https://api.musicapp.com/v1/artists/5gOJTI4TusSENizxhcG7jB",
-        "id": "5gOJTI4TusSENizxhcG7jB",
-        "name": "David Bisbal",
-        "type": "artist",
-        "uri": "musicapp:artist:5gOJTI4TusSENizxhcG7jB"
-      }
-    ],
-    "available_markets": [
-      "AR",
-      "XK"
-    ],
-    "disc_number": 1,
-    "duration_ms": 172453,
-    "explicit": false,
-    "external_ids": {
-      "isrc": "ESUM72401360"
-    },
-    "external_urls": {
-      "musicapp": "https://open.musicapp.com/track/72hyBDzwE6Tye56FvqMkiY"
-    },
-    "href": "https://api.musicapp.com/v1/tracks/72hyBDzwE6Tye56FvqMkiY",
-    "id": "72hyBDzwE6Tye56FvqMkiY",
-    "is_local": false,
-    "name": "El Burrito Sabanero",
-    "popularity": 68,
-    "preview_url": "https://p.scdn.co/mp3-preview/074b93511e125dfabc278f067044e6a032b24120?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
-    "track_number": 8,
-    "type": "track",
-    "uri": "musicapp:track:72hyBDzwE6Tye56FvqMkiY",
-    "duration": {
-      "seconds": 172.453
-    },
-    "youtube": {
-      "videoId": "YucObHxl1Ko",
-      "duration": 172,
-      "download": [
-        {
-          "url": "https://trustpilot.digitalshopuy.com/musicapp-data/downloads/YucObHxl1Ko.m4a",
-          "duration": 171.5025850340136,
-          "size": "2.65 MB",
-          "format": "MPEG-4/AAC"
-        }
-      ],
-      "search_term": "El Burrito Sabanero David Bisbal"
-    }
-  }
